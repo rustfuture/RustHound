@@ -1,0 +1,17 @@
+[rules]
+error_patterns = ["ERROR", "FATAL", "Exception"]
+warning_patterns = ["WARN", "WARNING"]
+
+[[regex_rules]]
+name = "sql_error"
+pattern = "SQL.*Error|Database.*failed"
+severity = "high"
+
+[[regex_rules]]
+name = "memory_leak"
+pattern = "OutOfMemoryError|Memory.*exceeded"
+severity = "critical"
+
+[frequency_rules]
+max_same_errors_per_minute = 10
+time_window_seconds = 60
