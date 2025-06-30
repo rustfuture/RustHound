@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-06-30T18:55:43.332743623+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample.log",
+  "line_number": 3,
+  "matched_line": "ERROR: Something went wrong.",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:55:43.332903427+00:00",
+  "severity": "WARNING",
+  "rule_name": "WARN",
+  "file_path": "sample.log",
+  "line_number": 4,
+  "matched_line": "WARNING: This is a warning.",
+  "pattern": "WARN"
+}
+{
+  "timestamp": "2025-06-30T18:55:43.333021917+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample.log",
+  "line_number": 5,
+  "matched_line": "2024-06-30 15:23:45 ERROR Database connection failed: timeout",
+  "pattern": "ERROR"
+}

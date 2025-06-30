@@ -1,0 +1,108 @@
+{
+  "timestamp": "2025-06-30T18:58:50.179689990+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 1,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.179806836+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 2,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.179862206+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 3,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.179912299+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 4,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.179961909+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 5,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180010679+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 6,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180059814+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 7,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180108240+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 8,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180157223+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 9,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180208231+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 10,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180259836+00:00",
+  "severity": "ERROR",
+  "rule_name": "ERROR",
+  "file_path": "sample_freq.log",
+  "line_number": 11,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
+{
+  "timestamp": "2025-06-30T18:58:50.180310091+00:00",
+  "severity": "frequency",
+  "rule_name": "Too many ERROR errors",
+  "file_path": "sample_freq.log",
+  "line_number": 11,
+  "matched_line": "ERROR: Connection timeout",
+  "pattern": "ERROR"
+}
