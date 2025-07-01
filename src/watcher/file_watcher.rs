@@ -18,11 +18,11 @@ pub async fn watch_file(path: PathBuf, tx: mpsc::Sender<PathBuf>) -> anyhow::Res
                     // We are only interested in file modifications
                     if event.kind.is_modify() {
                         if let Err(e) = tx.send(path.clone()).await {
-                            eprintln!("Error sending file path: {}", e);
+                            eprintln!("Error sending file path: {e}");
                         }
                     }
                 }
-                Err(e) => eprintln!("watch error: {:?}", e),
+                Err(e) => eprintln!("watch error: {e:?}"),
             }
         }
     });
