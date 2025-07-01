@@ -40,56 +40,49 @@ Başlamadan önce şunlara sahip olduğunuzdan emin olun:
     cd RustHound
     ```
 
-2.  **Kuralları Yapılandırın:**
+2.  **Kurulum/Kaldırma Betiğini Çalıştırın:**
 
-    Projenin kök dizininde bulunan `rules.toml` dosyasını düzenleyerek izlemek istediğiniz desenleri ve frekans eşiklerini tanımlayın. Örnek:
-
-    ```toml
-    [[rules]]
-    name = "ErrorPattern"
-    pattern = "ERROR: (.*)"
-    frequency_threshold = 5
-    time_window_seconds = 60
-
-    [[rules]]
-    name = "WarningPattern"
-    pattern = "WARNING: (.*)"
-    ```
-
-3.  **RustHound'u Derleyin:**
+    RustHound'u sisteminize kurmak veya kaldırmak için `setup.sh` betiğini çalıştırın. Bu betik size bir menü sunacaktır:
 
     ```bash
-    cargo build --release
+    chmod +x setup.sh
+    ./setup.sh
     ```
+
+    *   **Kurulum (Install):** Bu seçenek, Rust'ın kurulu olup olmadığını kontrol edecek, projeyi derleyecek ve yürütülebilir dosyayı PATH'inizde bulunan bir dizine (örneğin `~/.local/bin`) kopyalayacaktır. Ayrıca, varsayılan `rules.toml` dosyasını `~/.config/rusthound/rules.toml` konumuna kopyalayacaktır.
+    *   **Kaldırma (Uninstall):** Bu seçenek, RustHound yürütülebilir dosyasını ve yapılandırma dizinini sisteminizden kaldıracaktır.
+
+    Kurulum betiği, `rules.toml` dosyasını nasıl yapılandıracağınız ve `rusthound` komutunu terminalden çalıştırabilmek için `PATH` ayarlarınızı nasıl güncelleyeceğiniz konusunda size yol gösterecektir.
 
 ### Kullanım
 
-RustHound'u çalıştırmak için:
+RustHound'u kurduktan sonra, terminalinizden doğrudan `rusthound` komutunu kullanarak log dosyalarını izleyebilirsiniz:
 
 ```bash
-cargo run --release -- /path/to/your/logfile.log
+rusthound /path/to/your/logfile.log
 ```
 
-*   `/path/to/your/logfile.log`: İzlemek istediğiniz log dosyasının yolu.
+*   `/path/to/your/logfile.log`: İzlemek istediğiniz log dosyasının mutlak veya göreceli yolu.
 
 **Örnek Kullanım:**
 
 Mevcut dizindeki `sample.log` dosyasını izlemek için:
 
 ```bash
-cargo run --release -- sample.log
+rusthound sample.log
 ```
 
-Çıktıyı JSON dosyasına kaydetmek için (yapılandırmaya bağlı olarak):
-
-```bash
-# config/rules.rs veya main.rs içinde JSON çıktısı için gerekli yapılandırmayı yapın
-cargo run --release -- sample.log
-```
+Çıktıyı JSON dosyasına kaydetmek için, `rules.toml` dosyanızdaki çıktı yapılandırmasını kontrol edin.
 
 ## ⚙️ Yapılandırma Seçenekleri
 
-RustHound'un davranışı, `rules.toml` dosyası aracılığıyla özelleştirilebilir.
+RustHound'un davranışı, `rules.toml` dosyası aracılığıyla özelleştirilebilir. Kurulum betiği (`setup.sh`), varsayılan `rules.toml` dosyasını `~/.config/rusthound/rules.toml` konumuna kopyalar. Bu dosyayı kendi ihtiyaçlarınıza göre düzenleyebilirsiniz.
+
+Eğer farklı bir `rules.toml` dosyası kullanmak isterseniz, `rusthound` komutunu çalıştırırken `--rules` argümanını kullanabilirsiniz:
+
+```bash
+rusthound --rules /path/to/your/custom_rules.toml /path/to/your/logfile.log
+```
 
 Temel yapılandırma seçenekleri şunları içerir:
 

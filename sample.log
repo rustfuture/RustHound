@@ -1,5 +1,10 @@
-This is a sample log line.
-Another line with some info.
-ERROR: Something went wrong.
-WARNING: This is a warning.
-2024-06-30 15:23:45 ERROR Database connection failed: timeout
+Jul  1 10:00:01 hostname kernel: Out of memory: Kill process 1234 (my_app) score 999 or sacrifice child
+Jul  1 10:00:05 hostname systemd[1]: Failed to start Apache HTTP Server.
+Jul  1 10:00:10 hostname sshd[5678]: error: PAM: authentication failure for user root from 192.168.1.10
+Jul  1 10:00:15 hostname CRON[9101]: (root) CMD (command -v anacron >/dev/null && anacron -s)
+Jul  1 10:00:20 hostname kernel: CPU: 0 PID: 123 Comm: kworker/u8:0 Not tainted 5.15.0-76-generic #83-Ubuntu
+Jul  1 10:00:25 hostname systemd[1]: Unit user@1000.service entered failed state.
+Jul  1 10:00:30 hostname sudo: pam_unix(sudo:auth): authentication failure; logname=user uid=1000 euid=0 tty=/dev/pts/0 ruser=user rhost=  user=user
+Jul  1 10:00:35 hostname systemd[1]: Failed to mount /home/user/data.
+Jul  1 10:00:40 hostname kernel: NMI watchdog: BUG: soft lockup - CPU#1 stuck for 22s! [kworker/1:1:12345]
+Jul  1 10:00:45 hostname systemd[1]: Dependency failed for Local File Systems.
