@@ -21,7 +21,7 @@ impl FrequencyTracker {
         let entry = self
             .trackers
             .entry(pattern_name.to_string())
-            .or_insert_with(Vec::new);
+            .or_default();
 
         // Remove old timestamps outside the time window
         let time_window = Duration::seconds(self.time_window_seconds as i64);

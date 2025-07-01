@@ -38,10 +38,10 @@ struct Args {
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    println!("Parsed arguments: {:?}", args);
+    println!("Parsed arguments: {args:?}");
 
     let rules = config::rules::load_rules_from_file(&args.rules)?;
-    println!("Loaded rules: {:?}", rules);
+    println!("Loaded rules: {rules:?}");
 
     let pattern_matcher = analyzer::pattern_matcher::PatternMatcher::new(&rules)?;
 
@@ -65,7 +65,7 @@ async fn main() -> anyhow::Result<()> {
             current_offset = offset;
             current_line_number = line_number;
 
-            while let Some(_) = rx.recv().await {
+            while (rx.recv().await).is_some() {
                 // File modified, read new content
                 let (offset, line_number) = watcher::log_reader::read_file_from_offset(
                     &file_path,
@@ -90,10 +90,10 @@ async fn main() -> anyhow::Result<()> {
         }
     } else if let Some(dir_path) = args.dir {
         // TODO: Implement directory reading
-        println!("Directory reading not yet implemented for: {:?}", dir_path);
+        println!("Directory reading not yet implemented for: {dir_path:?}");
     } else if args.file.is_none() && args.dir.is_none() {
         let default_file_path = PathBuf::from("sample.log");
-        println!("No --file or --dir argument provided. Defaulting to: {:?}", default_file_path);
+        println!("No --file or --dir argument provided. Defaulting to: {default_file_path:?}");
         watcher::log_reader::read_file_line_by_line(
             &default_file_path,
             &pattern_matcher,

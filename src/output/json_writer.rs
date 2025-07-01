@@ -15,6 +15,6 @@ pub struct AnomalyDetection {
 
 pub fn write_json_output(detection: &AnomalyDetection, output_file: &mut File) -> io::Result<()> {
     let json_string = serde_json::to_string_pretty(detection)?;
-    writeln!(output_file, "{}", json_string)?;
+    writeln!(output_file, "{json_string}")?;
     Ok(())
 }
