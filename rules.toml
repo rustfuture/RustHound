@@ -3,14 +3,49 @@ error_patterns = ["ERROR", "FATAL", "Exception"]
 warning_patterns = ["WARN", "WARNING"]
 
 [[regex_rules]]
-name = "sql_error"
-pattern = "SQL.*Error|Database.*failed"
+name = "oom_kill"
+pattern = "Out of memory: Kill process|Memory.*exceeded"
+severity = "critical"
+
+[[regex_rules]]
+name = "cpu_soft_lockup"
+pattern = "soft lockup - CPU.*stuck for"
+severity = "critical"
+
+[[regex_rules]]
+name = "kernel_panic"
+pattern = "kernel: (?:general protection fault|segfault at|Call Trace:|NOHZ: local_softirq_pending)"
+severity = "critical"
+
+[[regex_rules]]
+name = "service_start_failure"
+pattern = "Failed to start|Starting .* failed|Unit .* entered failed state|Dependency failed for"
 severity = "high"
 
 [[regex_rules]]
-name = "memory_leak"
-pattern = "OutOfMemoryError|Memory.*exceeded"
+name = "filesystem_mount_failure"
+pattern = "Failed to mount|Read-only file system|No space left on device|Inode limit reached"
+severity = "high"
+
+[[regex_rules]]
+name = "authentication_failure"
+pattern = "authentication failure|Failed password for|Invalid user|Too many authentication failures"
+severity = "high"
+
+[[regex_rules]]
+name = "network_issue"
+pattern = "Network is unreachable|Name or service not known|No route to host|Connection refused|Interface .* is down"
+severity = "high"
+
+[[regex_rules]]
+name = "disk_io_error"
+pattern = "Disk I/O error"
 severity = "critical"
+
+[[regex_rules]]
+name = "sql_error"
+pattern = "SQL.*Error|Database.*failed"
+severity = "high"
 
 [frequency_rules]
 max_same_errors_per_minute = 10

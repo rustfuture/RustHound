@@ -1,6 +1,8 @@
 use crate::analyzer::frequency_tracker::FrequencyTracker;
 use crate::analyzer::pattern_matcher::PatternMatcher;
 use crate::config::rules::FrequencyRules;
+use crate::output::console::{create_detection, create_frequency_detection};
+use crate::output::Detection;
 use std::path::Path;
 use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom};
@@ -10,8 +12,8 @@ pub async fn read_file_line_by_line(
     pattern_matcher: &PatternMatcher,
     output_format: &str,
     frequency_rules: &Option<FrequencyRules>,
-) -> anyhow::Result<()> {
-    read_file_from_offset(
+) -> anyhow::Result<Vec<Detection>> {
+    let (_, _, detections) = read_file_from_offset(
         file_path,
         pattern_matcher,
         output_format,
@@ -20,7 +22,7 @@ pub async fn read_file_line_by_line(
         0,
     )
     .await?;
-    Ok(())
+    Ok(detections)
 }
 
 pub async fn read_file_from_offset(
@@ -30,7 +32,7 @@ pub async fn read_file_from_offset(
     frequency_rules: &Option<FrequencyRules>,
     mut offset: u64,
     mut current_line_number: usize,
-) -> anyhow::Result<(u64, usize)> {
+) -> anyhow::Result<(u64, usize, Vec<Detection>)> {
     let mut file = File::open(file_path).await?;
     file.seek(SeekFrom::Start(offset)).await?;
     let reader = BufReader::new(file);
@@ -62,22 +64,24 @@ pub async fn read_file_from_offset(
             rules.time_window_seconds,
         ));
 
+    let mut detections: Vec<Detection> = Vec::new();
+
     while let Some(line) = lines.next_line().await? {
         current_line_number += 1;
         offset += (line.len() + 1) as u64; // +1 for newline character
         if let Some((severity, pattern_name)) = pattern_matcher.check_for_patterns(&line) {
             if output_format == "console" || output_format == "both" {
-                crate::output::console::print_detection(
+                detections.push(create_detection(
                     severity,
                     file_path,
                     current_line_number,
                     &line,
                     pattern_name,
-                );
+                ));
             }
 
             if (output_format == "json" || output_format == "both") && json_output_file.is_some() {
-                let detection = crate::output::json_writer::AnomalyDetection {
+                let json_detection = crate::output::json_writer::AnomalyDetection {
                     timestamp: chrono::Local::now().to_rfc3339(),
                     severity: severity.to_string(),
                     rule_name: pattern_name.to_string(),
@@ -87,7 +91,7 @@ pub async fn read_file_from_offset(
                     pattern: pattern_name.to_string(),
                 };
                 crate::output::json_writer::write_json_output(
-                    &detection,
+                    &json_detection,
                     json_output_file.as_mut().unwrap(),
                 )?;
             }
@@ -96,7 +100,7 @@ pub async fn read_file_from_offset(
             if let Some(tracker) = &mut frequency_tracker {
                 if let Some(count) = tracker.track_event(pattern_name) {
                     if output_format == "console" || output_format == "both" {
-                        crate::output::console::print_frequency_detection(
+                        detections.push(create_frequency_detection(
                             pattern_name,
                             count,
                             frequency_rules.as_ref().unwrap().max_same_errors_per_minute,
@@ -104,12 +108,12 @@ pub async fn read_file_from_offset(
                             file_path,
                             current_line_number,
                             &line,
-                        );
+                        ));
                     }
                     if (output_format == "json" || output_format == "both")
                         && json_output_file.is_some()
                     {
-                        let detection = crate::output::json_writer::AnomalyDetection {
+                        let json_detection = crate::output::json_writer::AnomalyDetection {
                             timestamp: chrono::Local::now().to_rfc3339(),
                             severity: "frequency".to_string(),
                             rule_name: format!("Too many {pattern_name} errors"),
@@ -119,7 +123,7 @@ pub async fn read_file_from_offset(
                             pattern: pattern_name.to_string(),
                         };
                         crate::output::json_writer::write_json_output(
-                            &detection,
+                            &json_detection,
                             json_output_file.as_mut().unwrap(),
                         )?;
                     }
@@ -128,5 +132,5 @@ pub async fn read_file_from_offset(
         }
     }
 
-    Ok((offset, current_line_number))
+    Ok((offset, current_line_number, detections))
 }
