@@ -7,7 +7,7 @@
 **/*.gcno
 **/*.gcda
 **/*.profdata
-*.lock
+
 /.idea/
 /.vscode/
 /build/
