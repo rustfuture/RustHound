@@ -12,7 +12,7 @@ pub fn print_frequency_detection(
 ) {
     println!(
         "[{}] {} FREQ: Too many same errors\n  └─ Pattern: \"{}\"\n  └─ Count: {} in last {}s (limit: {})",
-        chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
         "⚠️".yellow().bold(),
         pattern_name,
         count,
@@ -47,7 +47,7 @@ pub fn print_detection(
 
     println!(
         "[{}] {} detected\n  └─ File: {}:{} \n  └─ Pattern: {}\n  └─ Line: \"{}\"",
-        chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
         severity_colored,
         file_path.display(),
         line_number,

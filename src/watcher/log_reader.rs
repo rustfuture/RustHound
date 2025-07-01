@@ -57,14 +57,10 @@ pub async fn read_file_from_offset(
 
     println!("Reading file: {}", file_path.display());
 
-    let mut frequency_tracker = if let Some(rules) = frequency_rules {
-        Some(FrequencyTracker::new(
+    let mut frequency_tracker = frequency_rules.as_ref().map(|rules| FrequencyTracker::new(
             rules.max_same_errors_per_minute,
             rules.time_window_seconds,
-        ))
-    } else {
-        None
-    };
+        ));
 
     while let Some(line) = lines.next_line().await? {
         current_line_number += 1;
@@ -116,7 +112,7 @@ pub async fn read_file_from_offset(
                         let detection = crate::output::json_writer::AnomalyDetection {
                             timestamp: chrono::Local::now().to_rfc3339(),
                             severity: "frequency".to_string(),
-                            rule_name: format!("Too many {} errors", pattern_name),
+                            rule_name: format!("Too many {pattern_name} errors"),
                             file_path: file_path.to_string_lossy().to_string(),
                             line_number: current_line_number,
                             matched_line: line.clone(),

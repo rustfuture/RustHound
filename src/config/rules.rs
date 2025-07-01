@@ -9,6 +9,7 @@ pub struct PatternConfig {
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Default)]
 pub struct Rules {
     #[serde(rename = "rules", default)]
     pub patterns: PatternConfig,
@@ -31,15 +32,6 @@ pub struct FrequencyRules {
     pub time_window_seconds: u32,
 }
 
-impl Default for Rules {
-    fn default() -> Self {
-        Rules {
-            patterns: PatternConfig::default(),
-            regex_rules: vec![],
-            frequency_rules: None,
-        }
-    }
-}
 
 pub fn load_rules_from_file(path: &std::path::Path) -> anyhow::Result<Rules> {
     let content = std::fs::read_to_string(path)?;
