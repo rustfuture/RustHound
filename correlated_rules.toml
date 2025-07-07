@@ -1,0 +1,29 @@
+[rules]
+error_patterns = ["ERROR", "FATAL", "Exception"]
+warning_patterns = ["WARN", "WARNING"]
+
+[[regex_rules]]
+name = "authentication_failure"
+pattern = "(?i)failed.*login|authentication.*failed"
+severity = "high"
+
+[[regex_rules]]
+name = "Successful Login"
+pattern = "(?i)successful login|session opened for user"
+severity = "info"
+
+[frequency_rules]
+max_same_errors_per_minute = 10
+time_window_seconds = 60
+
+[[correlated_rules]]
+name = "Potential Brute-Force Attack"
+severity = "critical"
+description = "Çok sayıda başarısız giriş denemesinin ardından başarılı bir giriş tespit edildi."
+time_window_seconds = 60
+
+followed_by = "Successful Login"
+
+[correlated_rules.trigger_on_rule]
+name = "authentication_failure"
+count = 10
