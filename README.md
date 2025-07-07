@@ -1,101 +1,101 @@
-# ✨ RustHound: Gerçek Zamanlı Log Analiz ve İzleme Aracı ✨
+# RustHound: Real-Time Log Analysis & Monitoring
 
-RustHound, Rust ile titizlikle hazırlanmış **güçlü, açık kaynaklı, gerçek zamanlı bir log analiz ve izleme aracıdır**. Sistem yöneticileri, geliştiriciler ve log verilerini sürekli olarak izlemesi gereken herkes için tasarlanmıştır.
+![RustHound Banner](https://your-image-url.com/banner.png) <!-- Replace with a real banner URL if you have one -->
 
-Log dosyalarındaki önemli olayları, desenleri ve anormallikleri manuel olarak arama zahmetine veda edin. RustHound ile loglarınızı tanımladığınız kurallara göre otomatik olarak izler ve size değerli bilgiler sunar!
+**RustHound is a powerful, open-source, real-time log analysis and monitoring tool crafted with Rust.** It's designed for system administrators, developers, and anyone who needs to keep a close eye on log data.
 
-##  Sizi Güçlendiren Özellikler
+Say goodbye to manually hunting for critical events, patterns, and anomalies in your log files. With RustHound, you can automatically monitor your logs against a defined set of rules and get valuable insights instantly!
 
-*   **Gerçek Zamanlı Log İzleme:**  Belirtilen log dosyalarını gerçek zamanlı olarak izler ve yeni girişleri anında işler.
-*   **Kural Tabanlı Desen Eşleştirme:**  Yapılandırılabilir kurallar (`rules.toml`) kullanarak log girişlerinde belirli metin desenlerini veya regex ifadelerini eşleştirir.
-*   **Frekans Analizi:**  Tanımlanan desenlerin belirli zaman aralıklarında ne sıklıkta ortaya çıktığını izler ve eşik değerleri aşıldığında uyarı verir.
-*   **Esnek Çıktı Seçenekleri:**  Analiz sonuçlarını konsola yazdırabilir veya yapılandırılabilir JSON dosyalarına kaydedebilir.
-*   **Modüler ve Genişletilebilir Mimari:**  Rust'ta temiz, modüler bir tasarımla inşa edilmiştir, bu da yeni analiz modülleri, çıktı formatları veya log kaynakları eklemeyi kolaylaştırır.
-*   **Dinamik Yapılandırma Yönetimi:**  Log dosyası yollarını, izleme aralıklarını ve kural setlerini kolayca yapılandırın.
-*   **Çapraz Platform Uyumluluğu:**  Linux, macOS ve Windows'ta sorunsuz çalışır ve farklı işletim sistemlerinde tutarlı bir izleme deneyimi sunar.
+## Table of Contents
 
-## ️ Bileşenler
+- [Features](#-features)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [Configuration](#-configuration)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-RustHound, log analizi ve izleme görevlerini yerine getirmek için çeşitli modüllerden oluşur:
+## ✨ Features
 
-*   `watcher`: Log dosyalarını izler ve yeni girişleri okur.
-*   `analyzer`: Okunan log girişlerinde desen eşleştirme ve frekans analizi yapar.
-*   `config`: Uygulama yapılandırmasını ve kurallarını yönetir.
-*   `output`: Analiz sonuçlarını farklı formatlarda (konsol, JSON) çıktı verir.
+*   **Real-Time Log Monitoring:** Tails specified log files in real-time, processing new entries as they appear.
+*   **Rule-Based Pattern Matching:** Match specific text patterns or regex in log entries using configurable rules (`rules.toml`).
+*   **Frequency Analysis:** Track how often defined patterns occur within specific time windows and get alerted when thresholds are breached.
+*   **Flexible Output Options:** Print analysis results to the console or save them to structured JSON files.
+*   **Cross-Platform Compatibility:** Works seamlessly on Linux, macOS, and Windows.
 
-## ⚡ Başlarken: RustHound'u Serbest Bırakın
+## 🚀 Installation
 
-### Ön Koşullar
+### Prerequisites
 
-Başlamadan önce şunlara sahip olduğunuzdan emin olun:
+Ensure you have **Rust** installed. You can install it via `rustup` from [https://rustup.rs/](https://rustup.rs/).
 
-*   **Rust:** `rustup.rs` adresinden `rustup` aracılığıyla Rust'ı yükleyin ([https://rustup.rs/](https://rustup.rs/)).
+### From Crates.io (Recommended)
 
-### Kurulum
+*Coming soon! Once published, you'll be able to install with:*
+```bash
+cargo install rust_hound
+```
 
-1.  **Depoyu Klonlayın:**
+### From Source
 
+1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/RustHound.git # Depo URL'sini güncelleyin
+    git clone https://github.com/your-username/RustHound.git # Update with your repo URL
     cd RustHound
     ```
 
-2.  **Kurulum/Kaldırma Betiğini Çalıştırın:**
-
-    RustHound'u sisteminize kurmak veya kaldırmak için `setup.sh` betiğini çalıştırın. Bu betik size bir menü sunacaktır:
-
+2.  **Install using `cargo`:**
+    This command will build the binary and place it in your cargo bin path (`~/.cargo/bin/`), making it available system-wide.
     ```bash
-    chmod +x setup.sh
-    ./setup.sh
+    cargo install --path .
     ```
 
-    *   **Kurulum (Install):** Bu seçenek, Rust'ın kurulu olup olmadığını kontrol edecek, projeyi derleyecek ve yürütülebilir dosyayı PATH'inizde bulunan bir dizine (örneğin `~/.local/bin`) kopyalayacaktır. Ayrıca, varsayılan `rules.toml` dosyasını `~/.config/rusthound/rules.toml` konumuna kopyalayacaktır.
-    *   **Kaldırma (Uninstall):** Bu seçenek, RustHound yürütülebilir dosyasını ve yapılandırma dizinini sisteminizden kaldıracaktır.
+## USAGE
 
-    Kurulum betiği, `rules.toml` dosyasını nasıl yapılandıracağınız ve `rusthound` komutunu terminalden çalıştırabilmek için `PATH` ayarlarınızı nasıl güncelleyeceğiniz konusunda size yol gösterecektir.
+Once installed, you can use the `rust_hound` command directly from your terminal.
 
-### Kullanım
-
-RustHound'u kurduktan sonra, terminalinizden doğrudan `rusthound` komutunu kullanarak log dosyalarını izleyebilirsiniz:
+### Basic Usage
 
 ```bash
-rusthound /path/to/your/logfile.log
+# Analyze a single file
+rust_hound --file /path/to/your/logfile.log
+
+# Analyze all .log files in a directory
+rust_hound --dir /path/to/your/logs/
 ```
 
-*   `/path/to/your/logfile.log`: İzlemek istediğiniz log dosyasının mutlak veya göreceli yolu.
+### Command-Line Arguments
 
-**Örnek Kullanım:**
+| Flag | Alias | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `--file <FILE>` | `-f` | Path to a single log file. | `sample.log` |
+| `--dir <DIR>` | `-d` | Path to a directory containing .log files. | `.` |
+| `--rules <RULES>` | `-r` | Path to the rules file. | `rules.toml` |
+| `--output <OUTPUT>` | `-o` | Output format: `console`, `json`, `both`. | `console` |
+| `--follow` | `-F` | Enable tail -f mode (real-time monitoring). | `false` |
+| `--severity <SEVERITY>` | `-s` | Filter by severity: `critical`, `high`, etc. | |
+| `--verbose` | `-v` | Enable debug output. | `false` |
+| `--help` | `-h` | Print help information. | |
+| `--version` | `-V` | Print version information. | |
 
-Mevcut dizindeki `sample.log` dosyasını izlemek için:
-
+**Example:** Monitor a directory in real-time and output to JSON:
 ```bash
-rusthound sample.log
+rust_hound --dir /var/log/ --follow --output json
 ```
 
-Çıktıyı JSON dosyasına kaydetmek için, `rules.toml` dosyanızdaki çıktı yapılandırmasını kontrol edin.
+## ⚙️ Configuration
 
-## ⚙️ Yapılandırma Seçenekleri
+RustHound's behavior can be customized via the `rules.toml` file. By default, it looks for this file in the current directory. You can specify a different path using the `--rules` argument.
 
-RustHound'un davranışı, `rules.toml` dosyası aracılığıyla özelleştirilebilir. Kurulum betiği (`setup.sh`), varsayılan `rules.toml` dosyasını `~/.config/rusthound/rules.toml` konumuna kopyalar. Bu dosyayı kendi ihtiyaçlarınıza göre düzenleyebilirsiniz.
+Key configuration options include:
+*   `error_patterns` & `warning_patterns`: Simple string matches for common error/warning keywords.
+*   `regex_rules`: Define complex patterns with severity levels (e.g., `critical`, `high`).
+*   `frequency_rules`: Set thresholds for how many times an event can occur in a given time window.
 
-Eğer farklı bir `rules.toml` dosyası kullanmak isterseniz, `rusthound` komutunu çalıştırırken `--rules` argümanını kullanabilirsiniz:
+## 🤝 Contributing
 
-```bash
-rusthound --rules /path/to/your/custom_rules.toml /path/to/your/logfile.log
-```
+Contributions are welcome! If you're passionate about Rust, log analysis, or systems monitoring, feel free to fork the repository, open issues, or submit pull requests.
 
-Temel yapılandırma seçenekleri şunları içerir:
+## 📜 License
 
-*   `rules.toml`: İzlenecek desenleri, frekans eşiklerini ve zaman pencerelerini tanımlayan ana yapılandırma dosyası.
-
-##  Katkıda Bulunma
-
-Katkılarınızı memnuniyetle karşılıyoruz! Rust, log analizi ve sistem izleme konusunda tutkuluysanız, depoyu çatallamaktan, sorunlar açmaktan veya çekme istekleri göndermekten çekinmeyin. Ayrıntılı yönergeler için lütfen `CONTRIBUTING.md`'ye (yakında!) bakın.
-
-##  Lisans
-
-Bu proje Apache Lisansı 2.0 altında lisanslanmıştır. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
-
----
-
-**RustHound** bağımsız bir projedir.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
