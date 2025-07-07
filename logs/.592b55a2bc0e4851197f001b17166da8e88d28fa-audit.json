@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/home/macintosh/Desktop/rustprojects/RustHound/logs/.592b55a2bc0e4851197f001b17166da8e88d28fa-audit.json",
+    "files": [
+        {
+            "date": 1751900115686,
+            "name": "/home/macintosh/Desktop/rustprojects/RustHound/logs/mcp-puppeteer-2025-07-07.log",
+            "hash": "251cf1156e7d840d9caffed670e9855fdb7f82f8d2f1aea57433ee317bfb978c"
+        }
+    ],
+    "hashType": "sha256"
+}
