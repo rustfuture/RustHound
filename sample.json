@@ -25,3 +25,75 @@
   "matched_line": "2024-06-30 15:23:45 ERROR Database connection failed: timeout",
   "pattern": "ERROR"
 }
+{
+  "timestamp": "2025-07-04T13:43:21.121860833+00:00",
+  "severity": "critical",
+  "rule_name": "oom_kill",
+  "file_path": "sample.log",
+  "line_number": 1,
+  "matched_line": "Jul  1 10:00:01 hostname kernel: Out of memory: Kill process 1234 (my_app) score 999 or sacrifice child",
+  "pattern": "oom_kill"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.121988109+00:00",
+  "severity": "high",
+  "rule_name": "service_start_failure",
+  "file_path": "sample.log",
+  "line_number": 2,
+  "matched_line": "Jul  1 10:00:05 hostname systemd[1]: Failed to start Apache HTTP Server.",
+  "pattern": "service_start_failure"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.121999408+00:00",
+  "severity": "high",
+  "rule_name": "authentication_failure",
+  "file_path": "sample.log",
+  "line_number": 3,
+  "matched_line": "Jul  1 10:00:10 hostname sshd[5678]: error: PAM: authentication failure for user root from 192.168.1.10",
+  "pattern": "authentication_failure"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.122177272+00:00",
+  "severity": "high",
+  "rule_name": "service_start_failure",
+  "file_path": "sample.log",
+  "line_number": 6,
+  "matched_line": "Jul  1 10:00:25 hostname systemd[1]: Unit user@1000.service entered failed state.",
+  "pattern": "service_start_failure"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.122191932+00:00",
+  "severity": "high",
+  "rule_name": "authentication_failure",
+  "file_path": "sample.log",
+  "line_number": 7,
+  "matched_line": "Jul  1 10:00:30 hostname sudo: pam_unix(sudo:auth): authentication failure; logname=user uid=1000 euid=0 tty=/dev/pts/0 ruser=user rhost=  user=user",
+  "pattern": "authentication_failure"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.122198945+00:00",
+  "severity": "high",
+  "rule_name": "filesystem_mount_failure",
+  "file_path": "sample.log",
+  "line_number": 8,
+  "matched_line": "Jul  1 10:00:35 hostname systemd[1]: Failed to mount /home/user/data.",
+  "pattern": "filesystem_mount_failure"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.122222458+00:00",
+  "severity": "critical",
+  "rule_name": "cpu_soft_lockup",
+  "file_path": "sample.log",
+  "line_number": 9,
+  "matched_line": "Jul  1 10:00:40 hostname kernel: NMI watchdog: BUG: soft lockup - CPU#1 stuck for 22s! [kworker/1:1:12345]",
+  "pattern": "cpu_soft_lockup"
+}
+{
+  "timestamp": "2025-07-04T13:43:21.122336611+00:00",
+  "severity": "high",
+  "rule_name": "service_start_failure",
+  "file_path": "sample.log",
+  "line_number": 10,
+  "matched_line": "Jul  1 10:00:45 hostname systemd[1]: Dependency failed for Local File Systems.",
+  "pattern": "service_start_failure"
+}
