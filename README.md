@@ -1,101 +1,101 @@
-# RustHound: Real-Time Log Analysis & Monitoring
+# RustHound: Gerçek Zamanlı Log Analiz ve İzleme Aracı
 
-![RustHound Banner](https://your-image-url.com/banner.png) <!-- Replace with a real banner URL if you have one -->
+![RustHound Banner](https://your-image-url.com/banner.png) <!-- Eğer varsa, gerçek bir banner URL'si ile değiştirin -->
 
-**RustHound is a powerful, open-source, real-time log analysis and monitoring tool crafted with Rust.** It's designed for system administrators, developers, and anyone who needs to keep a close eye on log data.
+**RustHound, Rust ile titizlikle hazırlanmış güçlü, açık kaynaklı, gerçek zamanlı bir log analiz ve izleme aracıdır.** Sistem yöneticileri, geliştiriciler ve log verilerini sürekli olarak izlemesi gereken herkes için tasarlanmıştır.
 
-Say goodbye to manually hunting for critical events, patterns, and anomalies in your log files. With RustHound, you can automatically monitor your logs against a defined set of rules and get valuable insights instantly!
+Log dosyalarınızdaki kritik olayları, desenleri ve anormallikleri manuel olarak arama zahmetine veda edin. RustHound ile loglarınızı tanımladığınız kurallara göre otomatik olarak izleyebilir ve anında değerli bilgiler edinebilirsiniz!
 
-## Table of Contents
+## İçindekiler
 
-- [Features](#-features)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Configuration](#-configuration)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [Özellikler](#-özellikler)
+- [Kurulum](#-kurulum)
+- [Kullanım](#-kullanım)
+- [Yapılandırma](#-yapılandırma)
+- [Katkıda Bulunma](#-katkıda-bulunma)
+- [Lisans](#-lisans)
 
-## ✨ Features
+## ✨ Özellikler
 
-*   **Real-Time Log Monitoring:** Tails specified log files in real-time, processing new entries as they appear.
-*   **Rule-Based Pattern Matching:** Match specific text patterns or regex in log entries using configurable rules (`rules.toml`).
-*   **Frequency Analysis:** Track how often defined patterns occur within specific time windows and get alerted when thresholds are breached.
-*   **Flexible Output Options:** Print analysis results to the console or save them to structured JSON files.
-*   **Cross-Platform Compatibility:** Works seamlessly on Linux, macOS, and Windows.
+*   **Gerçek Zamanlı Log İzleme:** Belirtilen log dosyalarını gerçek zamanlı olarak izler ve yeni girişleri anında işler.
+*   **Kural Tabanlı Desen Eşleştirme:** Yapılandırılabilir kurallar (`rules.toml`) kullanarak log girişlerinde belirli metin desenlerini veya regex ifadelerini eşleştirir.
+*   **Frekans Analizi:** Tanımlanan desenlerin belirli zaman aralıklarında ne sıklıkta ortaya çıktığını izler ve eşik değerleri aşıldığında uyarı verir.
+*   **Esnek Çıktı Seçenekleri:** Analiz sonuçlarını konsola yazdırabilir veya yapılandırılabilir JSON dosyalarına kaydedebilir.
+*   **Çapraz Platform Uyumluluğu:** Linux, macOS ve Windows'ta sorunsuz çalışır.
 
-## 🚀 Installation
+## 🚀 Kurulum
 
-### Prerequisites
+### Ön Koşullar
 
-Ensure you have **Rust** installed. You can install it via `rustup` from [https://rustup.rs/](https://rustup.rs/).
+**Rust**'ın kurulu olduğundan emin olun. `rustup` aracılığıyla [https://rustup.rs/](https://rustup.rs/) adresinden yükleyebilirsiniz.
 
-### From Crates.io (Recommended)
+### Crates.io'dan (Önerilen)
 
-*Coming soon! Once published, you'll be able to install with:*
+*Yakında! Yayınlandıktan sonra şu komutla yükleyebilirsiniz:*
 ```bash
 cargo install rust_hound
 ```
 
-### From Source
+### Kaynaktan
 
-1.  **Clone the repository:**
+1.  **Depoyu Klonlayın:**
     ```bash
-    git clone https://github.com/your-username/RustHound.git # Update with your repo URL
+    git clone https://github.com/your-username/RustHound.git # Depo URL'nizi güncelleyin
     cd RustHound
     ```
 
-2.  **Install using `cargo`:**
-    This command will build the binary and place it in your cargo bin path (`~/.cargo/bin/`), making it available system-wide.
+2.  **`cargo` kullanarak Kurun:**
+    Bu komut, ikili dosyayı derleyecek ve cargo bin yolunuza (`~/.cargo/bin/`) yerleştirecek, böylece sistem genelinde erişilebilir olacaktır.
     ```bash
-    cargo install --path .
+cargo install --path .
     ```
 
-## USAGE
+## Kullanım
 
-Once installed, you can use the `rust_hound` command directly from your terminal.
+Kurulduktan sonra, `rust_hound` komutunu doğrudan terminalinizden kullanabilirsiniz.
 
-### Basic Usage
+### Temel Kullanım
 
 ```bash
-# Analyze a single file
-rust_hound --file /path/to/your/logfile.log
+# Tek bir dosyayı analiz et
+rust_hound --file /yol/to/logdosyanız.log
 
-# Analyze all .log files in a directory
-rust_hound --dir /path/to/your/logs/
+# Bir dizindeki tüm .log dosyalarını analiz et
+rust_hound --dir /yol/to/loglarınız/
 ```
 
-### Command-Line Arguments
+### Komut Satırı Argümanları
 
-| Flag | Alias | Description | Default |
+| Bayrak | Takma Ad | Açıklama | Varsayılan |
 | :--- | :--- | :--- | :--- |
-| `--file <FILE>` | `-f` | Path to a single log file. | `sample.log` |
-| `--dir <DIR>` | `-d` | Path to a directory containing .log files. | `.` |
-| `--rules <RULES>` | `-r` | Path to the rules file. | `rules.toml` |
-| `--output <OUTPUT>` | `-o` | Output format: `console`, `json`, `both`. | `console` |
-| `--follow` | `-F` | Enable tail -f mode (real-time monitoring). | `false` |
-| `--severity <SEVERITY>` | `-s` | Filter by severity: `critical`, `high`, etc. | |
-| `--verbose` | `-v` | Enable debug output. | `false` |
-| `--help` | `-h` | Print help information. | |
-| `--version` | `-V` | Print version information. | |
+| `--file <DOSYA>` | `-f` | Tek bir log dosyasının yolu. | `sample.log` |
+| `--dir <DİZİN>` | `-d` | .log dosyalarını içeren bir dizinin yolu. | `.` |
+| `--rules <KURALLAR>` | `-r` | Kurallar dosyasının yolu. | `rules.toml` |
+| `--output <ÇIKTI>` | `-o` | Çıktı formatı: `console`, `json`, `both`. | `console` |
+| `--follow` | `-F` | `tail -f` modunu etkinleştir (gerçek zamanlı izleme). | `false` |
+| `--severity <ÖNEM>` | `-s` | Önem seviyesine göre filtrele: `critical`, `high`, vb. | |
+| `--verbose` | `-v` | Hata ayıklama çıktısını etkinleştir. | `false` |
+| `--help` | `-h` | Yardım bilgilerini yazdır. | |
+| `--version` | `-V` | Sürüm bilgilerini yazdır. | |
 
-**Example:** Monitor a directory in real-time and output to JSON:
+**Örnek:** Bir dizini gerçek zamanlı olarak izle ve JSON çıktısı al:
 ```bash
 rust_hound --dir /var/log/ --follow --output json
 ```
 
-## ⚙️ Configuration
+## ⚙️ Yapılandırma
 
-RustHound's behavior can be customized via the `rules.toml` file. By default, it looks for this file in the current directory. You can specify a different path using the `--rules` argument.
+RustHound'un davranışı `rules.toml` dosyası aracılığıyla özelleştirilebilir. Varsayılan olarak, bu dosyayı mevcut dizinde arar. `--rules` argümanını kullanarak farklı bir yol belirtebilirsiniz.
 
-Key configuration options include:
-*   `error_patterns` & `warning_patterns`: Simple string matches for common error/warning keywords.
-*   `regex_rules`: Define complex patterns with severity levels (e.g., `critical`, `high`).
-*   `frequency_rules`: Set thresholds for how many times an event can occur in a given time window.
+Temel yapılandırma seçenekleri şunları içerir:
+*   `error_patterns` & `warning_patterns`: Yaygın hata/uyarı anahtar kelimeleri için basit dize eşleşmeleri.
+*   `regex_rules`: Önem seviyeleri (örn. `critical`, `high`) ile karmaşık desenleri tanımlayın.
+*   `frequency_rules`: Belirli bir zaman penceresinde bir olayın kaç kez meydana gelebileceği için eşikler belirleyin.
 
-## 🤝 Contributing
+## 🤝 Katkıda Bulunma
 
-Contributions are welcome! If you're passionate about Rust, log analysis, or systems monitoring, feel free to fork the repository, open issues, or submit pull requests.
+Katkılarınız memnuniyetle karşılanır! Rust, log analizi veya sistem izleme konusunda tutkuluysanız, depoyu çatallamaktan, sorunlar açmaktan veya çekme istekleri göndermekten çekinmeyin.
 
-## 📜 License
+## 📜 Lisans
 
-This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
+Bu proje Apache Lisansı 2.0 altında lisanslanmıştır. Ayrıntılar için [LICENSE](LICENSE) dosyasına bakın.
