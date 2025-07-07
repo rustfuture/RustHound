@@ -8,8 +8,7 @@ pub struct PatternConfig {
     pub warning_patterns: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-#[derive(Default)]
+#[derive(Debug, Deserialize, Serialize, Clone, Default)]
 pub struct Rules {
     #[serde(rename = "rules", default)]
     pub patterns: PatternConfig,
@@ -17,6 +16,8 @@ pub struct Rules {
     pub regex_rules: Vec<RegexRule>,
     #[serde(default)]
     pub frequency_rules: Option<FrequencyRules>,
+    #[serde(default)]
+    pub correlated_rules: Vec<CorrelatedRule>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -32,6 +33,21 @@ pub struct FrequencyRules {
     pub time_window_seconds: u32,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct CorrelatedRule {
+    pub name: String,
+    pub severity: String,
+    pub description: String,
+    pub time_window_seconds: u64,
+    pub trigger_on_rule: TriggerRule,
+    pub followed_by: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct TriggerRule {
+    pub name: String,
+    pub count: usize,
+}
 
 pub fn load_rules_from_file(path: &std::path::Path) -> anyhow::Result<Rules> {
     let content = std::fs::read_to_string(path)?;
