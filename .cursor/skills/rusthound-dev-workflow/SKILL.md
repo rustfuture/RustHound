@@ -68,3 +68,11 @@ See `.cursor/skills/README.md` for the full index. Prefer these when relevant:
 | CI setup | `setting-up-ci` |
 
 Refresh vendored skills: `./scripts/install-cursor-skills.sh`
+
+## Git attribution (zorunlu)
+
+Commit veya push öncesi: [rusthound-git-attribution](../rusthound-git-attribution/SKILL.md)
+
+```bash
+./scripts/git-commit-as-owner.sh -m "your message"
+```

@@ -9,6 +9,8 @@ Skills teach the Cursor agent *how* to work on this repo. They load from `.curso
 | [rusthound-architecture](rusthound-architecture/SKILL.md) | Changing modules, follow mode, `ScanState`, data flow |
 | [rusthound-rules-toml](rusthound-rules-toml/SKILL.md) | Editing `rules.toml` or correlation config |
 | [rusthound-dev-workflow](rusthound-dev-workflow/SKILL.md) | Before commit: build, test, clippy, smoke tests |
+| [rusthound-git-attribution](rusthound-git-attribution/SKILL.md) | Commit/PR: Cursor yazar olarak görünmesin, geçmiş düzeltme |
+
 | [rusthound-cargo-tail](rusthound-cargo-tail/SKILL.md) | Watching `cargo build` / `cargo test` / `rusthound --follow` output |
 
 ## Rust language (from [ZhangHanDong/rust-skills](https://github.com/ZhangHanDong/rust-skills))
