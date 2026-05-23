@@ -15,15 +15,18 @@ pub struct CorrelationEngine {
 
 impl CorrelationEngine {
     pub fn new(rules: Vec<CorrelatedRule>) -> Self {
-        Self { 
-            rules, 
+        Self {
+            rules,
             recent_events: VecDeque::new(),
         }
     }
 
     pub fn add_detection(&mut self, detection: Detection) -> Option<Detection> {
         let now = Instant::now();
-        self.recent_events.push_back(Event { timestamp: now, detection: detection.clone() });
+        self.recent_events.push_back(Event {
+            timestamp: now,
+            detection: detection.clone(),
+        });
 
         // Remove old events
         self.cleanup_old_events();
@@ -33,7 +36,12 @@ impl CorrelationEngine {
     }
 
     fn cleanup_old_events(&mut self) {
-        let oldest_rule_window = self.rules.iter().map(|r| r.time_window_seconds).max().unwrap_or(60);
+        let oldest_rule_window = self
+            .rules
+            .iter()
+            .map(|r| r.time_window_seconds)
+            .max()
+            .unwrap_or(60);
         let cutoff = Instant::now() - Duration::from_secs(oldest_rule_window);
 
         while let Some(event) = self.recent_events.front() {
@@ -50,13 +58,22 @@ impl CorrelationEngine {
             let window_start = Instant::now() - Duration::from_secs(rule.time_window_seconds);
 
             // Find the 'followed_by' event first
-            if let Some(followed_by_event_pos) = self.recent_events.iter().rposition(|e| e.detection.pattern_name == rule.followed_by) {
+            if let Some(followed_by_event_pos) = self
+                .recent_events
+                .iter()
+                .rposition(|e| e.detection.pattern_name == rule.followed_by)
+            {
                 let followed_by_event = &self.recent_events[followed_by_event_pos];
 
                 // Count trigger events that occurred *before* the 'followed_by' event
-                let trigger_count = self.recent_events.iter()
+                let trigger_count = self
+                    .recent_events
+                    .iter()
                     .take(followed_by_event_pos)
-                    .filter(|e| e.timestamp >= window_start && e.detection.pattern_name == rule.trigger_on_rule.name)
+                    .filter(|e| {
+                        e.timestamp >= window_start
+                            && e.detection.pattern_name == rule.trigger_on_rule.name
+                    })
                     .count();
 
                 if trigger_count >= rule.trigger_on_rule.count {

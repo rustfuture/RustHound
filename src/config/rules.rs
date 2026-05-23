@@ -69,8 +69,7 @@ mod tests {
 
     #[test]
     fn deserializes_correlated_rules_toml() {
-        let rules =
-            load_rules_from_file(std::path::Path::new("correlated_rules.toml")).unwrap();
+        let rules = load_rules_from_file(std::path::Path::new("correlated_rules.toml")).unwrap();
         assert_eq!(rules.correlated_rules.len(), 1);
         assert_eq!(
             rules.correlated_rules[0].name,
