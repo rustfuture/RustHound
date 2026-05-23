@@ -208,6 +208,21 @@ severity = "high"
 #### Korelasyon dosyası
 `rusthound -f auth.log -r correlated_rules.toml`
 
+## Cursor Agent Skills
+
+RustHound includes Cursor skills under `.cursor/skills/`:
+
+- **Project skills** (`rusthound-*`) — architecture, TOML schema, dev workflow
+- **Community skills** — Rust ([ZhangHanDong/rust-skills](https://github.com/ZhangHanDong/rust-skills)), verification ([bluriesophos/cursorskills](https://github.com/bluriesophos/cursorskills)), DevOps ([awesome-cursor-skills](https://github.com/spencerpauly/awesome-cursor-skills))
+
+Install or refresh third-party skills:
+
+```bash
+./scripts/install-cursor-skills.sh
+```
+
+See `.cursor/skills/README.md` for the full catalog.
+
 ## 🤝 Katkıda Bulunma
 
 RustHound açık kaynak bir projedir ve katkılarınızı memnuniyetle karşılarız!
