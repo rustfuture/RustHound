@@ -1,6 +1,6 @@
+use super::{Detection, Severity};
 use colored::Colorize;
 use std::path::Path;
-use super::{Detection, Severity};
 
 pub fn display_detections(detections: &mut Vec<Detection>, min_severity: Option<Severity>) {
     if let Some(minimum) = min_severity {
