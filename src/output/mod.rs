@@ -11,7 +11,7 @@ pub struct Detection {
     pub matched_line: String,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub enum Severity {
     Critical,
     High,
@@ -29,5 +29,34 @@ impl From<&str> for Severity {
             "error" | "fatal" | "exception" => Severity::Error,
             _ => Severity::Info,
         }
+    }
+}
+
+impl Severity {
+    pub fn rank(&self) -> u8 {
+        match self {
+            Severity::Critical => 5,
+            Severity::High => 4,
+            Severity::Error => 3,
+            Severity::Warning => 2,
+            Severity::Info => 1,
+        }
+    }
+
+    pub fn meets_minimum(&self, minimum: &Severity) -> bool {
+        self.rank() >= minimum.rank()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn severity_meets_minimum() {
+        assert!(Severity::Critical.meets_minimum(&Severity::High));
+        assert!(Severity::High.meets_minimum(&Severity::High));
+        assert!(!Severity::Warning.meets_minimum(&Severity::High));
+        assert!(!Severity::Info.meets_minimum(&Severity::Error));
     }
 }

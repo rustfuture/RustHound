@@ -1,12 +1,11 @@
+use anyhow::Context;
 use clap::Parser;
 use std::path::PathBuf;
-use anyhow::Context;
 
 mod analyzer;
 mod config;
 mod output;
 mod watcher;
-
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -44,20 +43,24 @@ struct Args {
     severity: Option<String>,
 }
 
+fn min_severity_filter(args: &Args) -> Option<output::Severity> {
+    args.severity.as_ref().map(|s| output::Severity::from(s.as_str()))
+}
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    // Handle init-config command
     if args.init_config {
         return create_default_config();
     }
 
-    // Enable verbose logging if requested
     if args.verbose {
         println!("Debug mode enabled");
         println!("Arguments: {:#?}", args);
     }
+
+    let min_severity = min_severity_filter(&args);
 
     let rules_path = if let Some(path) = args.rules {
         path
@@ -82,42 +85,43 @@ async fn main() -> anyhow::Result<()> {
             let (tx, mut rx) = tokio::sync::mpsc::channel(100);
             watcher::file_watcher::watch_file(file_path.clone(), tx).await?;
 
+            let mut scan_state =
+                watcher::log_reader::ScanState::new(&rules.frequency_rules, &rules.correlated_rules);
             let mut current_offset = 0;
             let mut current_line_number = 0;
-            // Initial read of the file
-            let (offset, line_number, mut detections, _correlation_engine) = watcher::log_reader::read_file_from_offset(
+
+            let (offset, line_number, mut detections) = watcher::log_reader::read_file_from_offset(
                 &file_path,
                 &pattern_matcher,
                 &args.output,
                 &rules.frequency_rules,
-                &rules.correlated_rules,
+                &mut scan_state,
                 current_offset,
                 current_line_number,
             )
             .await?;
             current_offset = offset;
             current_line_number = line_number;
+            output::console::display_detections(&mut detections, min_severity);
 
-            output::console::display_detections(&mut detections);
-
-            while (rx.recv().await).is_some() {
-                // File modified, read new content
-                let (offset, line_number, mut new_detections, _updated_correlation_engine) = watcher::log_reader::read_file_from_offset(
-                    &file_path,
-                    &pattern_matcher,
-                    &args.output,
-                    &rules.frequency_rules,
-                    &rules.correlated_rules,
-                    current_offset,
-                    current_line_number,
-                )
-                .await?;
+            while rx.recv().await.is_some() {
+                let (offset, line_number, mut new_detections) =
+                    watcher::log_reader::read_file_from_offset(
+                        &file_path,
+                        &pattern_matcher,
+                        &args.output,
+                        &rules.frequency_rules,
+                        &mut scan_state,
+                        current_offset,
+                        current_line_number,
+                    )
+                    .await?;
                 current_offset = offset;
                 current_line_number = line_number;
-                output::console::display_detections(&mut new_detections);
+                output::console::display_detections(&mut new_detections, min_severity);
             }
         } else {
-            let (mut detections, _correlation_engine) = watcher::log_reader::read_file_line_by_line(
+            let (mut detections, _) = watcher::log_reader::read_file_line_by_line(
                 &file_path,
                 &pattern_matcher,
                 &args.output,
@@ -125,7 +129,7 @@ async fn main() -> anyhow::Result<()> {
                 &rules.correlated_rules,
             )
             .await?;
-            output::console::display_detections(&mut detections);
+            output::console::display_detections(&mut detections, min_severity);
         }
     } else if let Some(dir_path) = args.dir {
         let log_files = watcher::log_reader::find_log_files(&dir_path)?;
@@ -133,84 +137,94 @@ async fn main() -> anyhow::Result<()> {
             println!("No .log files found in directory: {dir_path:?}");
             return Ok(());
         }
-        
+
         if args.verbose {
             println!("Found {} log files in directory: {dir_path:?}", log_files.len());
             for file_path in &log_files {
                 println!("  - {}", file_path.display());
             }
         }
-        
+
         if args.follow {
             println!("Monitoring {} log files in real-time...", log_files.len());
-            // Watch multiple files
             let (tx, mut rx) = tokio::sync::mpsc::channel(100);
-            
-            // Start watching all files
+
             for file_path in &log_files {
                 let tx_clone = tx.clone();
                 let file_path_clone = file_path.clone();
                 tokio::spawn(async move {
-                    if let Err(e) = watcher::file_watcher::watch_file(file_path_clone, tx_clone).await {
+                    if let Err(e) = watcher::file_watcher::watch_file(file_path_clone, tx_clone).await
+                    {
                         eprintln!("Error watching file: {e}");
                     }
                 });
             }
-            
-            // Track offsets for each file and correlation engine state
-            let mut file_states: std::collections::HashMap<std::path::PathBuf, (u64, usize, analyzer::correlation_engine::CorrelationEngine)> = 
-                std::collections::HashMap::new();
 
-            // Initial read of all files
+            let mut file_states: std::collections::HashMap<
+                std::path::PathBuf,
+                (u64, usize, watcher::log_reader::ScanState),
+            > = std::collections::HashMap::new();
+
             for file_path in &log_files {
-                let (offset, line_number, mut detections, correlation_engine) = watcher::log_reader::read_file_from_offset(
-                    file_path,
-                    &pattern_matcher,
-                    &args.output,
+                let mut scan_state = watcher::log_reader::ScanState::new(
                     &rules.frequency_rules,
                     &rules.correlated_rules,
-                    0,
-                    0,
-                ).await?;
-                file_states.insert(file_path.clone(), (offset, line_number, correlation_engine));
-                output::console::display_detections(&mut detections);
-            }
-            
-            // Listen for file changes
-            while let Some(changed_file) = rx.recv().await {
-                if let Some((current_offset, current_line_number, _correlation_engine)) = file_states.remove(&changed_file) {
-                    let (new_offset, new_line_number, mut new_detections, updated_correlation_engine) = watcher::log_reader::read_file_from_offset(
-                        &changed_file,
+                );
+                let (offset, line_number, mut detections) =
+                    watcher::log_reader::read_file_from_offset(
+                        file_path,
                         &pattern_matcher,
                         &args.output,
                         &rules.frequency_rules,
-                        &rules.correlated_rules,
-                        current_offset,
-                        current_line_number,
-                    ).await?;
-                    file_states.insert(changed_file, (new_offset, new_line_number, updated_correlation_engine));
-                    output::console::display_detections(&mut new_detections);
+                        &mut scan_state,
+                        0,
+                        0,
+                    )
+                    .await?;
+                file_states.insert(file_path.clone(), (offset, line_number, scan_state));
+                output::console::display_detections(&mut detections, min_severity);
+            }
+
+            while let Some(changed_file) = rx.recv().await {
+                if let Some((current_offset, current_line_number, mut scan_state)) =
+                    file_states.remove(&changed_file)
+                {
+                    let (new_offset, new_line_number, mut new_detections) =
+                        watcher::log_reader::read_file_from_offset(
+                            &changed_file,
+                            &pattern_matcher,
+                            &args.output,
+                            &rules.frequency_rules,
+                            &mut scan_state,
+                            current_offset,
+                            current_line_number,
+                        )
+                        .await?;
+                    file_states.insert(
+                        changed_file,
+                        (new_offset, new_line_number, scan_state),
+                    );
+                    output::console::display_detections(&mut new_detections, min_severity);
                 }
             }
         } else {
-            // Read all files once
             let mut all_detections = Vec::new();
-            let _correlation_engine = analyzer::correlation_engine::CorrelationEngine::new(rules.correlated_rules.clone());
 
             for file_path in &log_files {
                 if args.verbose {
                     println!("Processing file: {}", file_path.display());
                 }
-                let (mut detections, _updated_correlation_engine) = watcher::log_reader::read_file_line_by_line(
+                let (mut detections, _) = watcher::log_reader::read_file_line_by_line(
                     file_path,
                     &pattern_matcher,
                     &args.output,
                     &rules.frequency_rules,
                     &rules.correlated_rules,
-                ).await?;
+                )
+                .await?;
                 all_detections.append(&mut detections);
             }
-            output::console::display_detections(&mut all_detections);
+            output::console::display_detections(&mut all_detections, min_severity);
         }
     } else if args.file.is_none() && args.dir.is_none() {
         let default_file_path = PathBuf::from("sample.log");
@@ -222,7 +236,7 @@ async fn main() -> anyhow::Result<()> {
             &rules.correlated_rules,
         )
         .await?;
-        output::console::display_detections(&mut detections);
+        output::console::display_detections(&mut detections, min_severity);
     }
 
     Ok(())
@@ -265,6 +279,11 @@ pattern = "authentication failure|Failed password for|Invalid user|Too many auth
 severity = "high"
 
 [[regex_rules]]
+name = "Successful Login"
+pattern = "(?i)successful login|session opened for user"
+severity = "info"
+
+[[regex_rules]]
 name = "network_issue"
 pattern = "Network is unreachable|Name or service not known|No route to host|Connection refused|Interface .* is down"
 severity = "high"
@@ -301,10 +320,10 @@ count = 10
         print!("Overwrite? (y/N): ");
         use std::io::{self, Write};
         io::stdout().flush()?;
-        
+
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
-        
+
         if !input.trim().to_lowercase().starts_with('y') {
             println!("Configuration file creation cancelled.");
             return Ok(());
@@ -314,6 +333,6 @@ count = 10
     std::fs::write(config_path, config_content)?;
     println!("Default configuration file created: {}", config_path);
     println!("You can now edit this file to customize your log analysis rules.");
-    
+
     Ok(())
 }
