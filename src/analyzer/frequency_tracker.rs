@@ -18,10 +18,7 @@ impl FrequencyTracker {
 
     pub fn track_event(&mut self, pattern_name: &str) -> Option<u32> {
         let now = Local::now();
-        let entry = self
-            .trackers
-            .entry(pattern_name.to_string())
-            .or_default();
+        let entry = self.trackers.entry(pattern_name.to_string()).or_default();
 
         // Remove old timestamps outside the time window
         let time_window = Duration::seconds(self.time_window_seconds as i64);

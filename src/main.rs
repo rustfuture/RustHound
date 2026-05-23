@@ -44,7 +44,9 @@ struct Args {
 }
 
 fn min_severity_filter(args: &Args) -> Option<output::Severity> {
-    args.severity.as_ref().map(|s| output::Severity::from(s.as_str()))
+    args.severity
+        .as_ref()
+        .map(|s| output::Severity::from(s.as_str()))
 }
 
 #[tokio::main]
@@ -85,8 +87,10 @@ async fn main() -> anyhow::Result<()> {
             let (tx, mut rx) = tokio::sync::mpsc::channel(100);
             watcher::file_watcher::watch_file(file_path.clone(), tx).await?;
 
-            let mut scan_state =
-                watcher::log_reader::ScanState::new(&rules.frequency_rules, &rules.correlated_rules);
+            let mut scan_state = watcher::log_reader::ScanState::new(
+                &rules.frequency_rules,
+                &rules.correlated_rules,
+            );
             let mut current_offset = 0;
             let mut current_line_number = 0;
 
@@ -139,7 +143,10 @@ async fn main() -> anyhow::Result<()> {
         }
 
         if args.verbose {
-            println!("Found {} log files in directory: {dir_path:?}", log_files.len());
+            println!(
+                "Found {} log files in directory: {dir_path:?}",
+                log_files.len()
+            );
             for file_path in &log_files {
                 println!("  - {}", file_path.display());
             }
@@ -153,7 +160,8 @@ async fn main() -> anyhow::Result<()> {
                 let tx_clone = tx.clone();
                 let file_path_clone = file_path.clone();
                 tokio::spawn(async move {
-                    if let Err(e) = watcher::file_watcher::watch_file(file_path_clone, tx_clone).await
+                    if let Err(e) =
+                        watcher::file_watcher::watch_file(file_path_clone, tx_clone).await
                     {
                         eprintln!("Error watching file: {e}");
                     }
@@ -200,10 +208,7 @@ async fn main() -> anyhow::Result<()> {
                             current_line_number,
                         )
                         .await?;
-                    file_states.insert(
-                        changed_file,
-                        (new_offset, new_line_number, scan_state),
-                    );
+                    file_states.insert(changed_file, (new_offset, new_line_number, scan_state));
                     output::console::display_detections(&mut new_detections, min_severity);
                 }
             }

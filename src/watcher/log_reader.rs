@@ -15,12 +15,12 @@ pub struct ScanState {
 }
 
 impl ScanState {
-    pub fn new(frequency_rules: &Option<FrequencyRules>, correlated_rules: &[CorrelatedRule]) -> Self {
+    pub fn new(
+        frequency_rules: &Option<FrequencyRules>,
+        correlated_rules: &[CorrelatedRule],
+    ) -> Self {
         let frequency_tracker = frequency_rules.as_ref().map(|rules| {
-            FrequencyTracker::new(
-                rules.max_same_errors_per_minute,
-                rules.time_window_seconds,
-            )
+            FrequencyTracker::new(rules.max_same_errors_per_minute, rules.time_window_seconds)
         });
         ScanState {
             frequency_tracker,
