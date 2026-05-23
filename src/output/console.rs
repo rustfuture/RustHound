@@ -2,7 +2,11 @@ use colored::Colorize;
 use std::path::Path;
 use super::{Detection, Severity};
 
-pub fn display_detections(detections: &mut Vec<Detection>) {
+pub fn display_detections(detections: &mut Vec<Detection>, min_severity: Option<Severity>) {
+    if let Some(minimum) = min_severity {
+        detections.retain(|d| d.severity.meets_minimum(&minimum));
+    }
+
     detections.sort_by(|a, b| a.line_number.cmp(&b.line_number));
 
     for detection in detections {

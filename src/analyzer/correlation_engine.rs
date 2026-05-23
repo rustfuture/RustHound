@@ -73,3 +73,63 @@ impl CorrelationEngine {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::rules::{CorrelatedRule, TriggerRule};
+    use crate::output::{Detection, Severity};
+
+    fn sample_detection(pattern_name: &str, line: usize) -> Detection {
+        Detection {
+            severity: Severity::High,
+            file_path: "/var/log/auth.log".to_string(),
+            line_number: line,
+            pattern_name: pattern_name.to_string(),
+            matched_line: "sample line".to_string(),
+        }
+    }
+
+    fn brute_force_rules() -> Vec<CorrelatedRule> {
+        vec![CorrelatedRule {
+            name: "Potential Brute-Force Attack".to_string(),
+            severity: "critical".to_string(),
+            description: "test".to_string(),
+            time_window_seconds: 60,
+            trigger_on_rule: TriggerRule {
+                name: "authentication_failure".to_string(),
+                count: 3,
+            },
+            followed_by: "Successful Login".to_string(),
+        }]
+    }
+
+    #[test]
+    fn triggers_after_enough_failures_then_success() {
+        let mut engine = CorrelationEngine::new(brute_force_rules());
+        assert!(engine
+            .add_detection(sample_detection("authentication_failure", 1))
+            .is_none());
+        assert!(engine
+            .add_detection(sample_detection("authentication_failure", 2))
+            .is_none());
+        assert!(engine
+            .add_detection(sample_detection("authentication_failure", 3))
+            .is_none());
+        let correlated = engine
+            .add_detection(sample_detection("Successful Login", 4))
+            .expect("correlation should fire");
+        assert_eq!(correlated.pattern_name, "Potential Brute-Force Attack");
+        assert_eq!(correlated.severity, Severity::Critical);
+    }
+
+    #[test]
+    fn no_trigger_without_followed_by_event() {
+        let mut engine = CorrelationEngine::new(brute_force_rules());
+        for i in 1..=5 {
+            assert!(engine
+                .add_detection(sample_detection("authentication_failure", i))
+                .is_none());
+        }
+    }
+}

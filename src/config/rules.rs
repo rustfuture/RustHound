@@ -54,3 +54,27 @@ pub fn load_rules_from_file(path: &std::path::Path) -> anyhow::Result<Rules> {
     let rules: Rules = toml::from_str(&content)?;
     Ok(rules)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn deserializes_rules_toml() {
+        let rules = load_rules_from_file(std::path::Path::new("rules.toml")).unwrap();
+        assert!(!rules.patterns.error_patterns.is_empty());
+        assert!(!rules.regex_rules.is_empty());
+        assert!(rules.frequency_rules.is_some());
+    }
+
+    #[test]
+    fn deserializes_correlated_rules_toml() {
+        let rules =
+            load_rules_from_file(std::path::Path::new("correlated_rules.toml")).unwrap();
+        assert_eq!(rules.correlated_rules.len(), 1);
+        assert_eq!(
+            rules.correlated_rules[0].name,
+            "Potential Brute-Force Attack"
+        );
+    }
+}
