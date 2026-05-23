@@ -8,24 +8,46 @@ use std::path::{Path, PathBuf};
 use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom};
 
+/// Persistent analyzer state for follow mode and multi-chunk reads.
+pub struct ScanState {
+    pub frequency_tracker: Option<FrequencyTracker>,
+    pub correlation_engine: CorrelationEngine,
+}
+
+impl ScanState {
+    pub fn new(frequency_rules: &Option<FrequencyRules>, correlated_rules: &[CorrelatedRule]) -> Self {
+        let frequency_tracker = frequency_rules.as_ref().map(|rules| {
+            FrequencyTracker::new(
+                rules.max_same_errors_per_minute,
+                rules.time_window_seconds,
+            )
+        });
+        ScanState {
+            frequency_tracker,
+            correlation_engine: CorrelationEngine::new(correlated_rules.to_vec()),
+        }
+    }
+}
+
 pub async fn read_file_line_by_line(
     file_path: &Path,
     pattern_matcher: &PatternMatcher,
     output_format: &str,
     frequency_rules: &Option<FrequencyRules>,
     correlated_rules: &[CorrelatedRule],
-) -> anyhow::Result<(Vec<Detection>, CorrelationEngine)> {
-    let (_offset, _line_number, detections, correlation_engine) = read_file_from_offset(
+) -> anyhow::Result<(Vec<Detection>, ScanState)> {
+    let mut scan_state = ScanState::new(frequency_rules, correlated_rules);
+    let (_offset, _line_number, detections) = read_file_from_offset(
         file_path,
         pattern_matcher,
         output_format,
         frequency_rules,
-        correlated_rules,
+        &mut scan_state,
         0,
         0,
     )
     .await?;
-    Ok((detections, correlation_engine))
+    Ok((detections, scan_state))
 }
 
 pub async fn read_file_from_offset(
@@ -33,10 +55,10 @@ pub async fn read_file_from_offset(
     pattern_matcher: &PatternMatcher,
     output_format: &str,
     frequency_rules: &Option<FrequencyRules>,
-    correlated_rules: &[CorrelatedRule],
+    scan_state: &mut ScanState,
     mut offset: u64,
     mut current_line_number: usize,
-) -> anyhow::Result<(u64, usize, Vec<Detection>, CorrelationEngine)> {
+) -> anyhow::Result<(u64, usize, Vec<Detection>)> {
     let mut file = File::open(file_path).await?;
     file.seek(SeekFrom::Start(offset)).await?;
     let reader = BufReader::new(file);
@@ -53,7 +75,6 @@ pub async fn read_file_from_offset(
         );
     }
 
-    // Only print this message once when the file is first opened
     if offset == 0 && (output_format == "json" || output_format == "both") {
         println!(
             "Writing JSON output to: {}",
@@ -63,18 +84,11 @@ pub async fn read_file_from_offset(
 
     println!("Reading file: {}", file_path.display());
 
-    let mut frequency_tracker = frequency_rules.as_ref().map(|rules| FrequencyTracker::new(
-            rules.max_same_errors_per_minute,
-            rules.time_window_seconds,
-        ));
-
-    let mut correlation_engine = CorrelationEngine::new(correlated_rules.to_vec());
-
     let mut detections: Vec<Detection> = Vec::new();
 
     while let Some(line) = lines.next_line().await? {
         current_line_number += 1;
-        offset += (line.len() + 1) as u64; // +1 for newline character
+        offset += (line.len() + 1) as u64;
         if let Some((severity, pattern_name)) = pattern_matcher.check_for_patterns(&line) {
             let detection = create_detection(
                 severity,
@@ -104,8 +118,7 @@ pub async fn read_file_from_offset(
                 )?;
             }
 
-            // Frequency tracking
-            if let Some(tracker) = &mut frequency_tracker {
+            if let Some(tracker) = &mut scan_state.frequency_tracker {
                 if let Some(count) = tracker.track_event(pattern_name) {
                     if output_format == "console" || output_format == "both" {
                         detections.push(create_frequency_detection(
@@ -138,8 +151,9 @@ pub async fn read_file_from_offset(
                 }
             }
 
-            // Correlation tracking
-            if let Some(correlated_detection) = correlation_engine.add_detection(detection) {
+            if let Some(correlated_detection) =
+                scan_state.correlation_engine.add_detection(detection)
+            {
                 if output_format == "console" || output_format == "both" {
                     detections.push(correlated_detection);
                 }
@@ -147,25 +161,31 @@ pub async fn read_file_from_offset(
         }
     }
 
-    Ok((offset, current_line_number, detections, correlation_engine))
+    Ok((offset, current_line_number, detections))
 }
 
 /// Find all .log files in a directory
 pub fn find_log_files(dir_path: &Path) -> anyhow::Result<Vec<PathBuf>> {
     let mut log_files = Vec::new();
-    
+
     if !dir_path.exists() {
-        return Err(anyhow::anyhow!("Directory does not exist: {}", dir_path.display()));
+        return Err(anyhow::anyhow!(
+            "Directory does not exist: {}",
+            dir_path.display()
+        ));
     }
-    
+
     if !dir_path.is_dir() {
-        return Err(anyhow::anyhow!("Path is not a directory: {}", dir_path.display()));
+        return Err(anyhow::anyhow!(
+            "Path is not a directory: {}",
+            dir_path.display()
+        ));
     }
-    
+
     for entry in std::fs::read_dir(dir_path)? {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.is_file() {
             if let Some(extension) = path.extension() {
                 if extension == "log" {
@@ -174,8 +194,7 @@ pub fn find_log_files(dir_path: &Path) -> anyhow::Result<Vec<PathBuf>> {
             }
         }
     }
-    
-    // Sort files for consistent ordering
+
     log_files.sort();
     Ok(log_files)
 }

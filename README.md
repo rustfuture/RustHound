@@ -1,6 +1,6 @@
 # 🐕 RustHound: Gerçek Zamanlı Log Analiz ve İzleme Aracı
 
-[![Rust](https://img.shields.io/badge/rust-1.70+-orange.svg)](https://www.rust-lang.org)
+[![Rust](https://img.shields.io/badge/rust-1.83+-orange.svg)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)]()
@@ -36,7 +36,7 @@
 
 ### Sistem Gereksinimleri
 
-- **Rust 1.70+** - [rustup.rs](https://rustup.rs/) üzerinden yükleyebilirsiniz
+- **Rust 1.83+** (edition 2021) - [rustup.rs](https://rustup.rs/) üzerinden yükleyebilirsiniz
 - **Git** (kaynak koddan kurulum için)
 - **Minimum 50MB disk alanı**
 
@@ -64,15 +64,15 @@ cargo install --path .
 #### Doğrudan İkili Dosya İndirme
 ```bash
 # GitHub Releases'den en son sürümü indirin
-wget https://github.com/rustfuture/RustHound/releases/latest/download/rust_hound-linux-x64.tar.gz
-tar -xzf rust_hound-linux-x64.tar.gz
-sudo mv rust_hound /usr/local/bin/
+wget https://github.com/rustfuture/RustHound/releases/latest/download/rusthound-linux-x64.tar.gz
+tar -xzf rusthound-linux-x64.tar.gz
+sudo mv rusthound /usr/local/bin/
 ```
 
 ### Kurulum Doğrulama
 ```bash
-rust_hound --version
-rust_hound --help
+rusthound --version
+rusthound --help
 ```
 
 ## 📖 Kullanım
@@ -81,13 +81,13 @@ rust_hound --help
 
 ```bash
 # Basit log dosyası analizi
-rust_hound --file /var/log/app.log
+rusthound --file /var/log/app.log
 
 # Dizin içindeki tüm log dosyalarını analiz et
-rust_hound --dir /var/log/
+rusthound --dir /var/log/
 
 # Gerçek zamanlı izleme (tail -f benzeri)
-rust_hound --file /var/log/app.log --follow
+rusthound --file /var/log/app.log --follow
 ```
 
 ### Komut Satırı Referansı
@@ -109,40 +109,40 @@ rust_hound --file /var/log/app.log --follow
 #### Temel Log Analizi
 ```bash
 # Tek dosya analizi
-rust_hound -f /var/log/nginx/access.log
+rusthound -f /var/log/nginx/access.log
 
 # Özel kurallar ile analiz
-rust_hound -f app.log -r custom_rules.toml
+rusthound -f app.log -r custom_rules.toml
 ```
 
 #### Gerçek Zamanlı İzleme
 ```bash
 # Canlı log takibi
-rust_hound -f /var/log/syslog --follow
+rusthound -f /var/log/syslog --follow
 
 # JSON çıktısı ile canlı takip
-rust_hound -d /var/log/ --follow -o json
+rusthound -d /var/log/ --follow -o json
 ```
 
 #### Filtreleme ve Çıktı
 ```bash
 # Sadece kritik seviye uyarılar
-rust_hound -f app.log -s critical
+rusthound -f app.log -s critical
 
 # Hem konsol hem JSON çıktısı
-rust_hound -f app.log -o both
+rusthound -f app.log -o both
 
 # Detaylı hata ayıklama
-rust_hound -f app.log --verbose
+rusthound -f app.log --verbose
 ```
 
 #### Toplu İşleme
 ```bash
 # Tüm log dizinini analiz et
-rust_hound -d /var/log/ -r production_rules.toml
+rusthound -d /var/log/ -r production_rules.toml
 
 # Belirli pattern'ler için tarama
-rust_hound -d /home/user/logs/ -s high -o json
+rusthound -d /home/user/logs/ -s high -o json
 ```
 
 ## ⚙️ Yapılandırma
@@ -152,93 +152,61 @@ RustHound, esnek TOML tabanlı yapılandırma sistemi kullanır. Varsayılan ola
 ### Temel Yapılandırma Dosyası (`rules.toml`)
 
 ```toml
-[general]
-# Genel ayarlar
-case_sensitive = false
-max_line_length = 1024
+[rules]
+error_patterns = ["ERROR", "FATAL", "Exception"]
+warning_patterns = ["WARN", "WARNING"]
 
-[patterns]
-# Basit string pattern'ler
-error_keywords = ["ERROR", "FATAL", "CRITICAL"]
-warning_keywords = ["WARN", "WARNING", "DEPRECATED"]
-
-[regex_rules]
-# Gelişmiş regex kuralları
-[[regex_rules.rule]]
-name = "SQL Injection Attempt"
-pattern = "(?i)(union|select|insert|delete|drop).*['\";]"
-severity = "critical"
-description = "Potansiyel SQL injection saldırısı tespit edildi"
-
-[[regex_rules.rule]]
-name = "Failed Login"
-pattern = "(?i)failed.*login|authentication.*failed"
+[[regex_rules]]
+name = "authentication_failure"
+pattern = "authentication failure|Failed password for"
 severity = "high"
-description = "Başarısız giriş denemesi"
+
+[[regex_rules]]
+name = "Successful Login"
+pattern = "(?i)successful login|session opened for user"
+severity = "info"
 
 [frequency_rules]
-# Frekans tabanlı kurallar
-[[frequency_rules.rule]]
-name = "Too Many Errors"
-pattern = "ERROR"
-threshold = 10
-window_seconds = 60
-severity = "critical"
-description = "1 dakika içinde çok fazla hata"
+max_same_errors_per_minute = 10
+time_window_seconds = 60
 
-[output]
-# Çıktı ayarları
-timestamp_format = "%Y-%m-%d %H:%M:%S"
-include_line_numbers = true
-color_output = true
+[[correlated_rules]]
+name = "Potential Brute-Force Attack"
+severity = "critical"
+description = "Çok sayıda başarısız giriş sonrası başarılı giriş"
+time_window_seconds = 60
+followed_by = "Successful Login"
+
+[correlated_rules.trigger_on_rule]
+name = "authentication_failure"
+count = 10
 ```
 
 ### Yapılandırma Seçenekleri
 
-#### Genel Ayarlar
-- `case_sensitive`: Büyük/küçük harf duyarlılığı
-- `max_line_length`: Maksimum satır uzunluğu
-- `ignore_empty_lines`: Boş satırları yoksay
+Detaylı şema: `.cursor/skills/rusthound-rules-toml/SKILL.md`
 
-#### Pattern Türleri
-- **Basit String Pattern'ler**: Hızlı anahtar kelime eşleştirme
-- **Regex Pattern'ler**: Karmaşık desen eşleştirme
-- **Frekans Kuralları**: Zaman tabanlı eşik kontrolü
+#### Pattern türleri
+- **Basit string** (`[rules]`): Anahtar kelime eşleştirme
+- **Regex** (`[[regex_rules]]`): Gelişmiş desenler
+- **Frekans** (`[frequency_rules]`): Zaman penceresinde tekrar sayımı
+- **Korelasyon** (`[[correlated_rules]]`): Ardışık olay zinciri
 
-#### Önem Seviyeleri
-- `critical`: Kritik durumlar
-- `high`: Yüksek öncelik
-- `medium`: Orta öncelik  
-- `low`: Düşük öncelik
-- `info`: Bilgilendirme
+#### Önem seviyeleri
+`critical`, `high`, `warning`, `error`, `info` — CLI: `rusthound -f app.log -s high`
 
 ### Örnek Yapılandırmalar
 
-#### Web Sunucu Logları
+#### Web sunucu
 ```toml
-[[regex_rules.rule]]
+[[regex_rules]]
 name = "HTTP 5xx Errors"
-pattern = "HTTP/1\.[01]\" [5][0-9][0-9]"
-severity = "high"
-
-[[regex_rules.rule]]
-name = "Slow Response"
-pattern = "response_time:[0-9]{4,}"
-severity = "medium"
-```
-
-#### Uygulama Logları
-```toml
-[[regex_rules.rule]]
-name = "Memory Leak Warning"
-pattern = "(?i)memory.*leak|out.*of.*memory"
-severity = "critical"
-
-[[regex_rules.rule]]
-name = "Database Connection Error"
-pattern = "(?i)database.*connection.*failed|db.*timeout"
+pattern = "HTTP/1\.\[01]" [5][0-9][0-9]"
 severity = "high"
 ```
+
+#### Korelasyon dosyası
+`rusthound -f auth.log -r correlated_rules.toml`
 
 ## 🤝 Katkıda Bulunma
 
@@ -296,13 +264,13 @@ chmod +r /var/log/app.log
 **Problem**: Yüksek bellek kullanımı
 ```bash
 # Çözüm: Streaming mode kullanın
-rust_hound -f large_file.log --follow
+rusthound -f large_file.log --follow
 ```
 
 **Problem**: Regex pattern çalışmıyor
 ```bash
 # Çözüm: Pattern'i test edin
-rust_hound -f test.log --verbose
+rusthound -f test.log --verbose
 ```
 
 ## 📜 Lisans
