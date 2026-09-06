@@ -7,7 +7,7 @@ pub fn display_detections(detections: &mut Vec<Detection>, min_severity: Option<
         detections.retain(|d| d.severity.meets_minimum(&minimum));
     }
 
-    detections.sort_by(|a, b| a.line_number.cmp(&b.line_number));
+    detections.sort_by_key(|detection| detection.line_number);
 
     for detection in detections {
         let colored_severity = match detection.severity {
