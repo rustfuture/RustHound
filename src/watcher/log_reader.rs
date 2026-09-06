@@ -102,7 +102,7 @@ pub async fn read_file_from_offset(
                 detections.push(detection.clone());
             }
 
-            if (output_format == "json" || output_format == "both") && json_output_file.is_some() {
+            if output_format == "json" || output_format == "both" {
                 let json_detection = crate::output::json_writer::AnomalyDetection {
                     timestamp: chrono::Local::now().to_rfc3339(),
                     severity: severity.to_string(),
@@ -112,28 +112,27 @@ pub async fn read_file_from_offset(
                     matched_line: line.clone(),
                     pattern: pattern_name.to_string(),
                 };
-                crate::output::json_writer::write_json_output(
-                    &json_detection,
-                    json_output_file.as_mut().unwrap(),
-                )?;
+                if let Some(output_file) = json_output_file.as_mut() {
+                    crate::output::json_writer::write_json_output(&json_detection, output_file)?;
+                }
             }
 
             if let Some(tracker) = &mut scan_state.frequency_tracker {
                 if let Some(count) = tracker.track_event(pattern_name) {
                     if output_format == "console" || output_format == "both" {
-                        detections.push(create_frequency_detection(
-                            pattern_name,
-                            count,
-                            frequency_rules.as_ref().unwrap().max_same_errors_per_minute,
-                            frequency_rules.as_ref().unwrap().time_window_seconds,
-                            file_path,
-                            current_line_number,
-                            &line,
-                        ));
+                        if let Some(rules) = frequency_rules.as_ref() {
+                            detections.push(create_frequency_detection(
+                                pattern_name,
+                                count,
+                                rules.max_same_errors_per_minute,
+                                rules.time_window_seconds,
+                                file_path,
+                                current_line_number,
+                                &line,
+                            ));
+                        }
                     }
-                    if (output_format == "json" || output_format == "both")
-                        && json_output_file.is_some()
-                    {
+                    if output_format == "json" || output_format == "both" {
                         let json_detection = crate::output::json_writer::AnomalyDetection {
                             timestamp: chrono::Local::now().to_rfc3339(),
                             severity: "frequency".to_string(),
@@ -143,10 +142,12 @@ pub async fn read_file_from_offset(
                             matched_line: line.clone(),
                             pattern: pattern_name.to_string(),
                         };
-                        crate::output::json_writer::write_json_output(
-                            &json_detection,
-                            json_output_file.as_mut().unwrap(),
-                        )?;
+                        if let Some(output_file) = json_output_file.as_mut() {
+                            crate::output::json_writer::write_json_output(
+                                &json_detection,
+                                output_file,
+                            )?;
+                        }
                     }
                 }
             }
