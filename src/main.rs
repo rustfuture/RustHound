@@ -1,11 +1,7 @@
 use anyhow::Context;
 use clap::Parser;
+use rust_hound::{analyzer, config, output, watcher};
 use std::path::PathBuf;
-
-mod analyzer;
-mod config;
-mod output;
-mod watcher;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
