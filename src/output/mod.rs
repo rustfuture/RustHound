@@ -33,6 +33,16 @@ impl From<&str> for Severity {
 }
 
 impl Severity {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Severity::Critical => "critical",
+            Severity::High => "high",
+            Severity::Warning => "warning",
+            Severity::Error => "error",
+            Severity::Info => "info",
+        }
+    }
+
     pub fn rank(&self) -> u8 {
         match self {
             Severity::Critical => 5,
