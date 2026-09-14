@@ -99,7 +99,7 @@ cargo test --locked
 cargo +1.85.0 check --locked --all-targets
 ~~~
 
-The current local run passes 14 library tests, no duplicate binary test suite, and the doctest target. The sample CLI invocation above is a real file-processing smoke test, not a benchmark.
+The current local run passes 15 library tests, no duplicate binary test suite, and the doctest target. The sample CLI invocation above is a real file-processing smoke test, not a benchmark.
 
 ## Scope and limitations
 

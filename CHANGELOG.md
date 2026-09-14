@@ -10,6 +10,8 @@ All notable changes to this project are documented here.
 
 - `--output json` now writes one valid JSON array. A new scan replaces stale output, while follow
   mode appends new detections without producing concatenated top-level JSON objects.
+- Correlation detections are now included in JSON and combined output instead of appearing only in
+  the console path.
 - The crate and binary version now match the published release tag.
 
 ### Added
