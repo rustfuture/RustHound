@@ -41,4 +41,5 @@ cargo build --release
 
 ## When done
 
-Invoke **prove-it**: all of `cargo test`, `cargo clippy -- -D warnings`, and a smoke `rusthound` run must pass.
+Before finishing: `cargo test`, `cargo clippy -- -D warnings`, and a smoke `rusthound` run must all pass
+(see [rusthound-dev-workflow](../rusthound-dev-workflow/SKILL.md)).
