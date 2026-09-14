@@ -2,7 +2,11 @@
 
 Skills teach the Cursor agent *how* to work on this repo. They load from `.cursor/skills/` automatically.
 
-All skills in this directory are project-authored and covered by the repository's Apache-2.0 license.
+The `rusthound-*` skills are project-authored and covered by the repository's Apache-2.0 license.
+`rusthound-cargo-tail` is adapted from the community tailing/monitoring skills in
+[spencerpauly/awesome-cursor-skills](https://github.com/spencerpauly/awesome-cursor-skills)
+(CC0-1.0); its provenance is recorded in that skill. No vendored third-party bundles are included in
+this repository.
 
 | Skill | Use when |
 |-------|----------|

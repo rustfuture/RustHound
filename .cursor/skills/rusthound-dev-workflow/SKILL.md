@@ -7,7 +7,7 @@ description: Build, test, and validation workflow for RustHound. Use before comm
 
 ## Requirements
 
-- Rust **1.83+** stable
+- Rust **1.85+** stable (the minimum supported version, enforced by CI)
 - Edition **2021** in Cargo.toml
 
 ## Validation commands

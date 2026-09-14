@@ -47,6 +47,27 @@ cargo run --locked -- --init-config
 
 For JSON output, use `--output json`; for both console and JSON, use `--output both`. `--follow` monitors appended content. `--dir PATH` scans regular `.log` files in a directory.
 
+## Installation
+
+`setup.sh` builds from the committed lockfile, installs the binary to `~/.local/bin`, and installs the
+bundled `rules.toml` as the default:
+
+~~~bash
+./setup.sh
+~~~
+
+When `--rules` is not given, the binary looks for `rules.toml` in the platform configuration
+directory and falls back to the working directory. `setup.sh` writes to that same directory:
+
+| Platform | Configuration path |
+| --- | --- |
+| macOS | `~/Library/Application Support/rusthound/rules.toml` |
+| Linux | `$XDG_CONFIG_HOME/rusthound/rules.toml` (default `~/.config/rusthound/rules.toml`) |
+
+Re-running the installer never overwrites rules you have edited: the bundled default is written
+beside them as `rules.toml.new`. Uninstalling keeps your configuration unless you choose the purge
+option.
+
 ## Rule configuration
 
 The default `rules.toml` supports these sections:
