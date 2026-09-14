@@ -4,6 +4,27 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- `setup.sh` was committed without the executable bit, so the documented `./setup.sh` failed with
+  "Permission denied". The file mode is now 100755.
+- `setup.sh` installed the default rules to `~/.config/rusthound`, but the application resolves the
+  configuration directory with `dirs::config_dir()`, which is `~/Library/Application Support` on
+  macOS. An installed rules file was therefore never found on macOS. The installer now uses the same
+  platform-specific path the application does, and the README documents both.
+- `setup.sh` overwrote an existing `rules.toml` on reinstall and `rm -rf`'d the whole configuration
+  directory on uninstall, which could destroy rules the user had edited. Reinstalling now keeps the
+  existing file and writes the bundled default beside it as `rules.toml.new`; uninstalling keeps the
+  configuration unless the purge option is chosen.
+- A failed rules-file copy printed "Installation complete" and exited 0. It now fails.
+- The development-workflow skill required Rust 1.83 while the crate, README, and CI require 1.85.
+- `.cursor/skills/README.md` claimed every skill in the directory was project-authored. One is
+  adapted from community skills; that provenance is now recorded in the skill and in the index.
+
+### Added
+
+- An Installation section in the README covering `setup.sh` and the platform configuration paths.
+
 ## [0.1.0] - 2026-09-14
 
 ### Added
