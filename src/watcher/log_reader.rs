@@ -59,21 +59,11 @@ pub async fn read_file_from_offset(
     mut offset: u64,
     mut current_line_number: usize,
 ) -> anyhow::Result<(u64, usize, Vec<Detection>)> {
+    let starting_offset = offset;
     let mut file = File::open(file_path).await?;
     file.seek(SeekFrom::Start(offset)).await?;
     let reader = BufReader::new(file);
     let mut lines = reader.lines();
-
-    let mut json_output_file: Option<std::fs::File> = None;
-    if output_format == "json" || output_format == "both" {
-        let output_path = file_path.with_extension("json");
-        json_output_file = Some(
-            std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(&output_path)?,
-        );
-    }
 
     if offset == 0 && (output_format == "json" || output_format == "both") {
         println!(
@@ -85,6 +75,7 @@ pub async fn read_file_from_offset(
     println!("Reading file: {}", file_path.display());
 
     let mut detections: Vec<Detection> = Vec::new();
+    let mut json_detections = Vec::new();
 
     while let Some(line) = lines.next_line().await? {
         current_line_number += 1;
@@ -112,9 +103,7 @@ pub async fn read_file_from_offset(
                     matched_line: line.clone(),
                     pattern: pattern_name.to_string(),
                 };
-                if let Some(output_file) = json_output_file.as_mut() {
-                    crate::output::json_writer::write_json_output(&json_detection, output_file)?;
-                }
+                json_detections.push(json_detection);
             }
 
             if let Some(tracker) = &mut scan_state.frequency_tracker {
@@ -142,12 +131,7 @@ pub async fn read_file_from_offset(
                             matched_line: line.clone(),
                             pattern: pattern_name.to_string(),
                         };
-                        if let Some(output_file) = json_output_file.as_mut() {
-                            crate::output::json_writer::write_json_output(
-                                &json_detection,
-                                output_file,
-                            )?;
-                        }
+                        json_detections.push(json_detection);
                     }
                 }
             }
@@ -160,6 +144,14 @@ pub async fn read_file_from_offset(
                 }
             }
         }
+    }
+
+    if output_format == "json" || output_format == "both" {
+        crate::output::json_writer::write_json_output(
+            &file_path.with_extension("json"),
+            json_detections,
+            starting_offset > 0,
+        )?;
     }
 
     Ok((offset, current_line_number, detections))
