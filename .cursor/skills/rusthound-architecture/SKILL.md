@@ -53,4 +53,7 @@ In `pattern_matcher.rs`, first match wins:
 
 - Cargo package: `rust_hound`
 - User-facing binary: `rusthound` (`[[bin]]` in Cargo.toml)
-- Config dir: `~/.config/rusthound/rules.toml`
+- Config dir: resolved with `dirs::config_dir()` — `~/Library/Application Support/rusthound/rules.toml`
+  on macOS, `$XDG_CONFIG_HOME/rusthound/rules.toml` (default `~/.config/rusthound/rules.toml`) on Linux.
+  When no `--rules` is given the binary tries that path and falls back to `rules.toml` in the working
+  directory.
