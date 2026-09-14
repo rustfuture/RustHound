@@ -2,6 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::io;
 use std::path::Path;
 
+use super::Detection;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AnomalyDetection {
     pub timestamp: String,
@@ -11,6 +13,20 @@ pub struct AnomalyDetection {
     pub line_number: usize,
     pub matched_line: String,
     pub pattern: String,
+}
+
+impl AnomalyDetection {
+    pub fn from_detection(detection: &Detection) -> Self {
+        Self {
+            timestamp: chrono::Local::now().to_rfc3339(),
+            severity: detection.severity.as_str().to_owned(),
+            rule_name: detection.pattern_name.clone(),
+            file_path: detection.file_path.clone(),
+            line_number: detection.line_number,
+            matched_line: detection.matched_line.clone(),
+            pattern: detection.pattern_name.clone(),
+        }
+    }
 }
 
 pub fn write_json_output(
@@ -71,6 +87,22 @@ mod tests {
         assert_eq!(value.as_array().map(Vec::len), Some(2));
 
         std::fs::remove_file(path).expect("temporary output should be removable");
+    }
+
+    #[test]
+    fn converts_console_detections_without_losing_severity() {
+        let source = Detection {
+            severity: super::super::Severity::Critical,
+            file_path: "auth.log".to_owned(),
+            line_number: 42,
+            pattern_name: "Potential Brute-Force Attack".to_owned(),
+            matched_line: "login accepted".to_owned(),
+        };
+
+        let output = AnomalyDetection::from_detection(&source);
+        assert_eq!(output.severity, "critical");
+        assert_eq!(output.rule_name, source.pattern_name);
+        assert_eq!(output.line_number, 42);
     }
 
     #[test]

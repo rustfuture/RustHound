@@ -139,6 +139,13 @@ pub async fn read_file_from_offset(
             if let Some(correlated_detection) =
                 scan_state.correlation_engine.add_detection(detection)
             {
+                if output_format == "json" || output_format == "both" {
+                    json_detections.push(
+                        crate::output::json_writer::AnomalyDetection::from_detection(
+                            &correlated_detection,
+                        ),
+                    );
+                }
                 if output_format == "console" || output_format == "both" {
                     detections.push(correlated_detection);
                 }
