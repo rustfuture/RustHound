@@ -2,7 +2,7 @@
 
 RustHound is a Rust command-line log analyzer. It reads a log file, applies configured string and regular-expression rules, and can add frequency and correlation detections to console or JSON output.
 
-This is a pre-1.0 portfolio project. The README describes the behavior verified in this repository; it does not claim universal platform support, release artifacts, or benchmark numbers.
+This is a pre-1.0 portfolio project. The README describes the behavior verified in this repository; it does not claim universal platform support, release artifacts, or benchmark numbers. See [CHANGELOG.md](CHANGELOG.md) for the change history.
 
 ## Implemented behavior
 
