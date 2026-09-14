@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-14
+
 ### Added
 
 - Streaming line-by-line analysis for a single file or a directory of `.log` files.
