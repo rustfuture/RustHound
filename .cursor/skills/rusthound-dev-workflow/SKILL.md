@@ -51,7 +51,10 @@ Verify correlation/frequency state persists across file appends (use `ScanState`
 ./setup.sh
 ```
 
-Copies `target/release/rusthound` to `~/.local/bin/` and `rules.toml` to `~/.config/rusthound/`.
+Copies `target/release/rusthound` to `~/.local/bin/` and the bundled `rules.toml` to the same
+platform configuration directory the binary resolves: `~/Library/Application Support/rusthound` on
+macOS, `$XDG_CONFIG_HOME/rusthound` (default `~/.config/rusthound`) elsewhere. Re-running the
+installer keeps rules you have edited and writes the default beside them as `rules.toml.new`.
 
 ## Related skills
 
