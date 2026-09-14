@@ -5,7 +5,11 @@ description: Monitor RustHound and Cargo command output in real time (build, tes
 
 # RustHound Cargo / Log Tail Workflow
 
-Adapted for this repo from community tailing/monitoring skills. Prefer this over generic Node/webpack tail skills when working in RustHound.
+This skill was adapted for RustHound from the community tailing/monitoring skills in
+[spencerpauly/awesome-cursor-skills](https://github.com/spencerpauly/awesome-cursor-skills)
+(`tailing-build-output`, `monitoring-terminal-errors`), which are released under CC0-1.0. The
+RustHound-specific commands and expectations below are project-authored. Prefer this over generic
+Node/webpack tail skills when working in RustHound.
 
 ## Commands to watch
 
