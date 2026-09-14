@@ -82,7 +82,7 @@ The current local run passes 12 library tests, no duplicate binary test suite, a
 - Follow mode is a local file watcher, not a distributed ingestion service.
 - Cross-platform behavior beyond the tested macOS environment and CI’s Linux environment requires separate validation.
 - The repository has no release artifacts or `cargo install` package published by this portfolio milestone; the source build is the supported installation path.
-- `scripts/install-cursor-skills.sh` is development tooling and is not part of the analyzer runtime.
+- `.cursor/skills/` and `scripts/git-commit-as-owner.sh` are repository development tooling and are not part of the analyzer runtime.
 
 ## Architecture
 
@@ -93,4 +93,4 @@ The current local run passes 12 library tests, no duplicate binary test suite, a
 
 ## License and attribution
 
-Apache-2.0. See [LICENSE](LICENSE). Third-party development helpers are not presented as product functionality.
+Apache-2.0. See [LICENSE](LICENSE).

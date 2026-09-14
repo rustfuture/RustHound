@@ -5,9 +5,9 @@
 set -euo pipefail
 
 export GIT_AUTHOR_NAME="rustfuture"
-export GIT_AUTHOR_EMAIL="rustfuture@users.noreply.github.com"
+export GIT_AUTHOR_EMAIL="121799572+rustfuture@users.noreply.github.com"
 export GIT_COMMITTER_NAME="rustfuture"
-export GIT_COMMITTER_EMAIL="rustfuture@users.noreply.github.com"
+export GIT_COMMITTER_EMAIL="121799572+rustfuture@users.noreply.github.com"
 
 if [[ $# -eq 0 ]]; then
   echo "Usage: $0 [-a] -m \"commit message\"" >&2

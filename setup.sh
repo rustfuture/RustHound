@@ -1,93 +1,87 @@
 #!/bin/bash
+#
+# RustHound install/uninstall helper.
+#
+# Builds the release binary from the committed lockfile, installs it to
+# ~/.local/bin, and installs the default rules file to ~/.config/rusthound.
+set -euo pipefail
 
 INSTALL_DIR="$HOME/.local/bin"
 CONFIG_DIR="$HOME/.config/rusthound"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 install_rusthound() {
-    echo "RustHound Kurulumu Başlatılıyor..."
+    echo "Starting RustHound installation..."
 
-    # Rust'ın kurulu olup olmadığını kontrol et
-    if ! command -v rustc &> /dev/null
-    then
-        echo "Rust bulunamadı. Lütfen https://rustup.rs/ adresinden Rust'ı yükleyin."
+    if ! command -v cargo >/dev/null 2>&1; then
+        echo "Rust was not found. Install it from https://rustup.rs/ and try again." >&2
         exit 1
     fi
 
-    echo "Rust algılandı. Proje derleniyor..."
-
-    # Projeyi derle
-    cargo build --release
-    if [ $? -ne 0 ]; then
-        echo "Derleme başarısız oldu. Lütfen hataları kontrol edin."
+    echo "Rust detected. Building the project..."
+    cd "$REPO_ROOT"
+    if ! cargo build --locked --release; then
+        echo "Build failed. Fix the errors above and try again." >&2
         exit 1
     fi
 
-    echo "Derleme tamamlandı. Yürütülebilir dosya kopyalanıyor..."
-
-    # Yürütülebilir dosyayı ~/.local/bin dizinine kopyala
+    echo "Build finished. Installing the executable..."
     mkdir -p "$INSTALL_DIR"
-    cp target/release/rusthound "$INSTALL_DIR/"
-
-    if [ $? -ne 0 ]; then
-        echo "Yürütülebilir dosya kopyalanamadı. İzinleri kontrol edin veya manuel olarak kopyalayın."
+    if ! cp target/release/rusthound "$INSTALL_DIR/"; then
+        echo "Could not copy the executable. Check permissions on $INSTALL_DIR." >&2
         exit 1
     fi
 
-    echo "RustHound başarıyla $INSTALL_DIR dizinine kuruldu."
+    echo "RustHound installed to $INSTALL_DIR."
 
-    # rules.toml dosyasını ~/.config/rusthound dizinine kopyala
     mkdir -p "$CONFIG_DIR"
-    cp rules.toml "$CONFIG_DIR/rules.toml"
-
-    if [ $? -ne 0 ]; then
-        echo "rules.toml dosyası kopyalanamadı. Lütfen manuel olarak kopyalayın: cp rules.toml $CONFIG_DIR/rules.toml"
+    if ! cp rules.toml "$CONFIG_DIR/rules.toml"; then
+        echo "Could not copy rules.toml. Copy it manually: cp rules.toml $CONFIG_DIR/rules.toml" >&2
     fi
 
     echo ""
-    echo "Sonraki Adımlar:"
-    echo "1. Varsayılan 'rules.toml' dosyası $CONFIG_DIR/rules.toml konumuna kopyalandı. Bu dosyayı kendi ihtiyaçlarınıza göre düzenleyebilirsiniz."
-    echo "2. '$INSTALL_DIR' dizininin PATH değişkeninizde olduğundan emin olun. Değilse, aşağıdaki komutu .bashrc veya .zshrc dosyanıza ekleyin:"
-    echo "   export PATH=\"$PATH:$INSTALL_DIR\""
-    echo "   Ardından 'source ~/.bashrc' veya 'source ~/.zshrc' komutunu çalıştırın."
+    echo "Next steps:"
+    echo "1. The default rules.toml is now at $CONFIG_DIR/rules.toml. Edit it to match your logs."
+    echo "2. Make sure $INSTALL_DIR is on your PATH. If it is not, add this line to ~/.bashrc or ~/.zshrc:"
+    echo "   export PATH=\"\$PATH:$INSTALL_DIR\""
+    echo "   Then run 'source ~/.bashrc' or 'source ~/.zshrc'."
     echo ""
-    echo "Kullanım: rusthound /path/to/your/logfile.log"
-    echo "Kurulum tamamlandı!"
+    echo "Usage: rusthound --file /path/to/your/logfile.log --rules $CONFIG_DIR/rules.toml"
+    echo "Installation complete."
 }
 
 uninstall_rusthound() {
-    echo "RustHound Kaldırma İşlemi Başlatılıyor..."
+    echo "Starting RustHound removal..."
 
     if [ -f "$INSTALL_DIR/rusthound" ]; then
         rm "$INSTALL_DIR/rusthound"
-        echo "RustHound yürütülebilir dosyası kaldırıldı: $INSTALL_DIR/rusthound"
+        echo "Removed executable: $INSTALL_DIR/rusthound"
     else
-        echo "RustHound yürütülebilir dosyası bulunamadı: $INSTALL_DIR/rusthound"
+        echo "Executable not found: $INSTALL_DIR/rusthound"
     fi
 
     if [ -d "$CONFIG_DIR" ]; then
         rm -rf "$CONFIG_DIR"
-        echo "RustHound yapılandırma dizini kaldırıldı: $CONFIG_DIR"
+        echo "Removed configuration directory: $CONFIG_DIR"
     else
-        echo "RustHound yapılandırma dizini bulunamadı: $CONFIG_DIR"
+        echo "Configuration directory not found: $CONFIG_DIR"
     fi
 
     echo ""
-    echo "Kaldırma işlemi tamamlandı."
-    echo "Not: Eğer PATH değişkeninize $INSTALL_DIR dizinini eklediyseniz, bu değişikliği .bashrc veya .zshrc gibi kabuk yapılandırma dosyanızdan manuel olarak kaldırmanız gerekebilir."
+    echo "Removal complete."
+    echo "Note: if you added $INSTALL_DIR to your PATH, remove that line from ~/.bashrc or ~/.zshrc manually."
 }
 
-# Ana menü
-clear
-echo "RustHound Kurulum/Kaldırma Menüsü"
-echo "----------------------------------"
-echo "1. RustHound'u Kur"
-echo "2. RustHound'u Kaldır"
-echo "3. Çıkış"
-echo "----------------------------------"
+echo "RustHound install/uninstall menu"
+echo "--------------------------------"
+echo "1. Install RustHound"
+echo "2. Uninstall RustHound"
+echo "3. Exit"
+echo "--------------------------------"
 
-read -p "Seçiminizi yapın (1-3): " choice
+read -r -p "Choose an option (1-3): " choice
 
-case $choice in
+case "$choice" in
     1)
         install_rusthound
         ;;
@@ -95,9 +89,10 @@ case $choice in
         uninstall_rusthound
         ;;
     3)
-        echo "Çıkılıyor."
+        echo "Exiting."
         ;;
     *)
-        echo "Geçersiz seçim. Lütfen 1, 2 veya 3 girin."
+        echo "Invalid choice. Enter 1, 2, or 3." >&2
+        exit 1
         ;;
 esac

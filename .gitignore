@@ -18,5 +18,7 @@
 Makefile
 makefile
 Makefile.*
-makefile.*.cursor/skills-cache/
+makefile.*
+
 .cursor/skills-cache/
+logs/

@@ -19,7 +19,7 @@ time_window_seconds = 60
 [[correlated_rules]]
 name = "Potential Brute-Force Attack"
 severity = "critical"
-description = "Çok sayıda başarısız giriş denemesinin ardından başarılı bir giriş tespit edildi."
+description = "Repeated authentication failures followed by a successful login were detected."
 time_window_seconds = 60
 
 followed_by = "Successful Login"
