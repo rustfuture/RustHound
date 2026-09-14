@@ -4,6 +4,19 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- `CONTRIBUTING.md`, `docs/architecture.md`, and `docs/rules-schema.md`. The module map, the
+  follow-mode state rule, the pattern-matching priority, the rules schema, and the manual smoke
+  commands previously lived in an agent-skill directory; they are now normal project documentation.
+
+### Removed
+
+- The `.cursor/` directory and `scripts/git-commit-as-owner.sh`. The skills were tooling
+  configuration rather than project content, and the commit wrapper only existed to force an author
+  identity that is now set in the global Git configuration. The rules schema and architecture notes
+  were preserved in the documents listed above.
+
 ## [0.1.1] - 2026-09-14
 
 ### Fixed

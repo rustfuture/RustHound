@@ -87,7 +87,7 @@ max_same_errors_per_minute = 10
 time_window_seconds = 60
 ~~~
 
-Correlated rules can model a sequence such as repeated authentication failures followed by a successful login. The checked-in examples are the source of truth for the accepted TOML schema.
+Correlated rules can model a sequence such as repeated authentication failures followed by a successful login. [docs/rules-schema.md](docs/rules-schema.md) is the authoritative schema, including the severity values and the mistakes that produce rules which never fire.
 
 ## Verification
 
@@ -107,7 +107,6 @@ The current local run passes 12 library tests, no duplicate binary test suite, a
 - Follow mode is a local file watcher, not a distributed ingestion service.
 - Cross-platform behavior beyond the tested macOS environment and CI’s Linux environment requires separate validation.
 - The repository publishes no `cargo install` package; the source build, or the tagged release's source archive, is the supported installation path.
-- `.cursor/skills/` and `scripts/git-commit-as-owner.sh` are repository development tooling and are not part of the analyzer runtime.
 
 ## Architecture
 
@@ -115,6 +114,15 @@ The current local run passes 12 library tests, no duplicate binary test suite, a
 - `src/config/` — TOML schema and rule loading.
 - `src/watcher/` — file reading, offsets, and follow-mode notifications.
 - `src/output/` — detection types, console rendering, and JSON writing.
+
+[docs/architecture.md](docs/architecture.md) covers the module map, the data flow, the pattern-matching
+priority, and the rule that follow mode must reuse one `ScanState` rather than rebuilding the engines
+per read.
+
+## Contributing
+
+Build requirements, the exact checks CI runs, manual smoke commands, and the commit conventions are in
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Versioning and support
 

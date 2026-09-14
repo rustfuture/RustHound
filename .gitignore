@@ -20,5 +20,5 @@ makefile
 Makefile.*
 makefile.*
 
-.cursor/skills-cache/
+# Analyzer logs written by --output json or a follow session.
 logs/
