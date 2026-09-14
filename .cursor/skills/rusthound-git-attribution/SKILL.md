@@ -3,39 +3,54 @@ name: rusthound-git-attribution
 description: Git commit and PR attribution for RustHound. Use before git commit, git push, opening or updating PRs, or fixing history where cursoragent appears as author.
 ---
 
-# RustHound — Git attribution (Cursor görünmesin)
+# RustHound — Git attribution
 
-## Amaç
+## Goal
 
-PR ve commit geçmişinde **yalnızca repo sahibi** (`rustfuture`) görünsün.  
-**Yasak:** `Cursor Agent`, `cursoragent@cursor.com`, `Co-authored-by:` satırları, PR gövdesinde Cloud Agent linkleri.
+Only the repository owner (`rustfuture`) should appear as author or committer in commits and PRs.
+**Not allowed:** `Cursor Agent`, `cursoragent@cursor.com`, `Co-authored-by:` trailers, or Cloud Agent
+promotional links in a PR body.
+
+The canonical identity for this account is:
+
+```text
+rustfuture <121799572+rustfuture@users.noreply.github.com>
+```
+
+An empty `user.email` (or `rustfuture <>`) produces commits GitHub cannot link to the account. Set it
+explicitly before committing:
+
+```bash
+git config user.email "121799572+rustfuture@users.noreply.github.com"
+```
 
 ---
 
-## 1) Cursor ayarları (kullanıcı — bir kez)
+## 1) Cursor settings (one-time, per user)
 
-Cursor Desktop / Cloud Agent:
+In Cursor Desktop / Cloud Agent:
 
-1. **Settings** → **Cloud Agents** (veya **Agents**)
-2. **Commit attribution** / **Add co-author** / **Sign commits as agent** benzeri seçenekleri **kapatın**
-3. Varsa **Git author** alanını boş bırakın veya `rustfuture` yapın
+1. Open **Settings** → **Cloud Agents** (or **Agents**).
+2. Turn **off** any option such as **Commit attribution**, **Add co-author**, or **Sign commits as agent**.
+3. Leave the **Git author** field empty, or set it to `rustfuture`.
 
-VM’de `~/.cursor/agent-hooks/.../commit-msg.cursor.co-author` hook’u `Co-authored-by` ekleyebilir; ayar kapalı değilse agent `--no-verify` kullanmalı (aşağıda).
+A VM-side hook (`~/.cursor/agent-hooks/.../commit-msg.cursor.co-author`) can append a
+`Co-authored-by` trailer. If that setting is not disabled, commit with `--no-verify` (see below).
 
 ---
 
-## 2) Agent kuralları (her commit öncesi)
+## 2) Agent rules (before every commit)
 
 ### Author / committer
 
 ```bash
 export GIT_AUTHOR_NAME="rustfuture"
-export GIT_AUTHOR_EMAIL="rustfuture@users.noreply.github.com"
+export GIT_AUTHOR_EMAIL="121799572+rustfuture@users.noreply.github.com"
 export GIT_COMMITTER_NAME="rustfuture"
-export GIT_COMMITTER_EMAIL="rustfuture@users.noreply.github.com"
+export GIT_COMMITTER_EMAIL="121799572+rustfuture@users.noreply.github.com"
 ```
 
-Veya repo script:
+Or use the repository wrapper:
 
 ```bash
 ./scripts/git-commit-as-owner.sh -m "feat: your message"
@@ -43,76 +58,64 @@ Veya repo script:
 
 ### Commit
 
-- Mesajda **asla** `Co-authored-by:` ekleme
-- Hook co-author ekliyorsa: `git commit --no-verify` (yalnızca bu durumda)
-- Push öncesi kontrol:
+- **Never** add a `Co-authored-by:` trailer.
+- If a hook appends a co-author, use `git commit --no-verify` (only in that case).
+- Verify before pushing:
 
 ```bash
 git log -1 --format='Author: %an <%ae>%nCommitter: %cn <%ce>%n%n%B'
 ```
 
-Beklenen: `rustfuture` / `rustfuture@users.noreply.github.com` — **değil** `Cursor Agent` veya `cursoragent`.
+Expected: `rustfuture` / `121799572+rustfuture@users.noreply.github.com` — **not** `Cursor Agent`.
 
-### PR
+### Pull request
 
-- PR başlığı ve gövdesinde **Cursor / Cloud Agent** tanıtım linki ekleme
-- Gövde: yalnızca Summary, Changes, Verification (Markdown)
-- `<!-- CURSOR_AGENT_PR_BODY_* -->` blokları sistem ekliyorsa, mümkünse PR’ı kullanıcı GitHub UI’dan düzenlesin
+- Do not add Cursor / Cloud Agent promotional links to the title or body.
+- Keep the body to Summary, Changes, and Verification.
+- If `<!-- CURSOR_AGENT_PR_BODY_* -->` blocks are injected, edit the PR from the GitHub UI when possible.
 
 ---
 
-## 3) Zaten yanlış yazılmış geçmişi düzeltme
+## 3) Repairing history that already has wrong authorship
 
-`main` veya feature branch’te `cursoragent` commit’leri varsa:
+If `main` or a feature branch contains `cursoragent` commits, prefer `git filter-repo` over
+`filter-branch`:
 
 ```bash
-BASE=<merge-öncesi-son-commit-sha>   # örn. 059f7da
+# Preview which commits are affected.
+git log --format='%h %an <%ae> | %s' | grep -i cursoragent
 
-git checkout -B fix-attribution "$BASE"
+# Rewrite author, committer, and strip co-author trailers on a scratch clone.
+git filter-repo --force \
+  --email-callback '
+    return email.replace(b"cursoragent@cursor.com", b"121799572+rustfuture@users.noreply.github.com")
+  ' \
+  --name-callback '
+    return name.replace(b"Cursor Agent", b"rustfuture")
+  ' \
+  --message-callback '
+    return b"\n".join(l for l in message.split(b"\n") if not l.lower().startswith(b"co-authored-by:"))
+  '
 
-# Her commit için (sırayla SHA’ları yazın):
-for sha in <sha1> <sha2> <sha3>; do
-  git cherry-pick "$sha"
-  msg=$(git log -1 --format=%B | grep -v '^Co-authored-by:' | sed -e :a -e '/^\n*$/{$d;N;ba}')
-  GIT_AUTHOR_NAME=rustfuture GIT_AUTHOR_EMAIL=rustfuture@users.noreply.github.com \
-  GIT_COMMITTER_NAME=rustfuture GIT_COMMITTER_EMAIL=rustfuture@users.noreply.github.com \
-  git commit --amend --author="rustfuture <rustfuture@users.noreply.github.com>" -m "$msg" --no-verify
-done
-
-# Doğrula
+# Verify, then push with an explicit lease.
 git log -3 --format='%h %an <%ae> | %s'
-
-# Onay sonrası (dikkat: force push)
-git push origin fix-attribution:main --force-with-lease
+git push --force-with-lease origin main
 ```
 
-Alternatif (tüm branch tek seferde):
-
-```bash
-FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f \
-  --env-filter '
-export GIT_AUTHOR_NAME="rustfuture"
-export GIT_AUTHOR_EMAIL="rustfuture@users.noreply.github.com"
-export GIT_COMMITTER_NAME="rustfuture"
-export GIT_COMMITTER_EMAIL="rustfuture@users.noreply.github.com"
-' "$BASE"..HEAD
-
-FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch -f \
-  --msg-filter 'grep -v "^Co-authored-by:"' "$BASE"..HEAD
-```
+A rewrite changes every commit hash. Coordinate before force-pushing a shared branch.
 
 ---
 
-## 4) Checklist (push öncesi)
+## 4) Pre-push checklist
 
-- [ ] `git log -1` → author `rustfuture`
-- [ ] Commit mesajında `Co-authored-by` yok
-- [ ] `cargo test` geçti ([rusthound-dev-workflow](../rusthound-dev-workflow/SKILL.md))
-- [ ] PR gövdesinde agent reklamı / cursor linki yok
+- [ ] `git log -1` shows author `rustfuture` with a non-empty email.
+- [ ] No `Co-authored-by` trailer in the commit message.
+- [ ] `cargo test` passes ([rusthound-dev-workflow](../rusthound-dev-workflow/SKILL.md)).
+- [ ] The PR body contains no agent advertising or Cursor links.
 
 ---
 
-## İlgili dosyalar
+## Related files
 
-- `scripts/git-commit-as-owner.sh` — güvenli commit wrapper
-- `.cursor/AGENT_GIT.md` — kısa özet
+- `scripts/git-commit-as-owner.sh` — safe commit wrapper.
+- `.cursor/AGENT_GIT.md` — short summary.
