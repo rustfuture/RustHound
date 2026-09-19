@@ -60,8 +60,7 @@ When `--rules` is not given, the binary looks for `rules.toml` in the platform c
 directory and falls back to the working directory. `setup.sh` writes to that same directory:
 
 | Platform | Configuration path |
-| --- | --- |
-| macOS | `~/Library/Application Support/rusthound/rules.toml` |
+| --- | --- |\n| macOS | `~/Library/Application Support/rusthound/rules.toml` |
 | Linux | `$XDG_CONFIG_HOME/rusthound/rules.toml` (default `~/.config/rusthound/rules.toml`) |
 
 Re-running the installer never overwrites rules you have edited: the bundled default is written
@@ -143,4 +142,4 @@ in the issue tracker has been implemented.
 
 ## License and attribution
 
-Apache-2.0. See [LICENSE](LICENSE).
+Licensed under Apache-2.0 to provide enterprise patent grants and permissive commercial integration for log-pipeline and observability tooling. See [LICENSE](LICENSE).
