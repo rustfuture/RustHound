@@ -22,7 +22,7 @@ All notable changes to this project are documented here.
 
 ### Removed
 
-- The `.cursor/` directory and `scripts/git-commit-as-owner.sh`. The skills were tooling
+- Editor configuration files and `scripts/git-commit-as-owner.sh`. The editor files were tooling
   configuration rather than project content, and the commit wrapper only existed to force an author
   identity that is now set in the global Git configuration. The rules schema and architecture notes
   were preserved in the documents listed above.
@@ -43,8 +43,8 @@ All notable changes to this project are documented here.
   configuration unless the purge option is chosen.
 - A failed rules-file copy printed "Installation complete" and exited 0. It now fails.
 - The development-workflow skill required Rust 1.83 while the crate, README, and CI require 1.85.
-- `.cursor/skills/README.md` claimed every skill in the directory was project-authored. One is
-  adapted from community skills; that provenance is now recorded in the skill and in the index.
+- An editor-configuration README claimed every file in its directory was project-authored. One file
+  was adapted from a community source; that provenance is now recorded in the file and in the index.
 
 ### Added
 
@@ -74,7 +74,7 @@ All notable changes to this project are documented here.
 
 ### Fixed
 
-- `.gitignore` had lost a newline, merging `makefile.*` with `.cursor/skills-cache/` into a single
+- `.gitignore` had lost a newline, merging `makefile.*` with an editor cache path into a single
   pattern, so `makefile.*` was not ignored. The stray analyzer log that had been committed under
   `logs/` was untracked.
 
