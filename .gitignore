@@ -36,3 +36,13 @@ Thumbs.db
 # Analyzer logs written by --output json or a follow session
 logs/
 *.json
+!sample_freq.json
+!sample.log
+!sample_freq.log
+
+# Python and Jupyter artifacts
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+
