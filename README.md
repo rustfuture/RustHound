@@ -1,36 +1,37 @@
 # RustHound
 
+RustHound is a command-line log analyzer for developers and system administrators to inspect log streams and detect operational anomalies using configurable pattern, frequency, and correlation rules.
+
 [![CI](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml/badge.svg)](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml)
-[![Rust](https://img.shields.io/badge/rust-1.85%2B-orange.svg?logo=rust)](https://www.rust-lang.org/)
-[![License: Apache--2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-RustHound is a Rust command-line log analyzer. It reads a log file, applies configured string and regular-expression rules, and can add frequency and correlation detections to console or JSON output.
+**Status:** Maintained CLI (experimental, pre-1.0 portfolio project).
 
-This is a pre-1.0 portfolio project. The README describes the behavior verified in this repository; it does not claim universal platform support or benchmark numbers. See [CHANGELOG.md](CHANGELOG.md) for the change history.
-
-## Implemented behavior
-
-- Streaming line-by-line analysis for one file or a directory of `.log` files.
-- TOML rules for string patterns, regex patterns, frequency thresholds, and correlated events.
-- Console, JSON, and combined output modes.
-- Optional follow mode for newly appended log lines.
-- Minimum-severity filtering and a default configuration generator.
-- Analyzer unit tests for rule precedence, frequency tracking, correlation, and TOML parsing.
+- Streaming line-by-line log analysis for single files or directories of `.log` files.
+- TOML-based rule matching for exact substrings and regular expressions.
+- Time-windowed frequency tracking to detect recurring errors exceeding defined thresholds.
+- Multi-event correlation rules to alert on sequence patterns (such as repeated authentication failures followed by a login).
+- Console, JSON array, and combined output modes, with minimum-severity filtering.
+- State-preserving follow mode (`--follow`) monitoring newly appended log lines.
 
 ## Requirements and build
 
 - Rust 1.85 or newer (edition 2021).
-- A log file and a TOML rules file for a meaningful run.
+- A log file and a TOML rules file for analysis.
 
 ~~~bash
-git clone https://github.com/rustfuture/RustHound.git
-cd RustHound
 cargo build --locked --release
 ~~~
 
 ## Quick start
 
-The repository includes a small sample log and rules file:
+Inspect the CLI options:
+
+~~~bash
+cargo run --locked -- --help
+~~~
+
+Analyze the bundled [sample.log](sample.log) using [rules.toml](rules.toml):
 
 ~~~bash
 cargo run --locked -- \
@@ -39,13 +40,26 @@ cargo run --locked -- \
   --output console
 ~~~
 
-The verified sample run emits eight detections with severity and source-line context. Generate a starter rules file with:
+The sample run emits eight detections with severity and source-line context.
+
+Run with JSON output or combined mode:
+
+~~~bash
+cargo run --locked -- --file sample.log --rules rules.toml --output json
+cargo run --locked -- --file sample.log --rules rules.toml --output both
+~~~
+
+Filter detections by minimum severity:
+
+~~~bash
+cargo run --locked -- --file sample.log --severity high
+~~~
+
+Generate a default starter rules file:
 
 ~~~bash
 cargo run --locked -- --init-config
 ~~~
-
-For JSON output, use `--output json`; for both console and JSON, use `--output both`. The output file is one JSON array and a new non-follow scan replaces stale results instead of duplicating them. In `--follow` mode, new detections are appended while the file remains a valid JSON document. `--dir PATH` scans regular `.log` files in a directory.
 
 ## Installation
 
@@ -60,7 +74,8 @@ When `--rules` is not given, the binary looks for `rules.toml` in the platform c
 directory and falls back to the working directory. `setup.sh` writes to that same directory:
 
 | Platform | Configuration path |
-| --- | --- |\n| macOS | `~/Library/Application Support/rusthound/rules.toml` |
+| --- | --- |
+| macOS | `~/Library/Application Support/rusthound/rules.toml` |
 | Linux | `$XDG_CONFIG_HOME/rusthound/rules.toml` (default `~/.config/rusthound/rules.toml`) |
 
 Re-running the installer never overwrites rules you have edited: the bundled default is written
@@ -69,7 +84,7 @@ option.
 
 ## Rule configuration
 
-The default `rules.toml` supports these sections:
+The default [rules.toml](rules.toml) supports these sections:
 
 ~~~toml
 [rules]
@@ -86,26 +101,27 @@ max_same_errors_per_minute = 10
 time_window_seconds = 60
 ~~~
 
-Correlated rules can model a sequence such as repeated authentication failures followed by a successful login. [docs/rules-schema.md](docs/rules-schema.md) is the authoritative schema, including the severity values and the mistakes that produce rules which never fire.
+Correlated rules can model a sequence such as repeated authentication failures followed by a successful login. [docs/rules-schema.md](docs/rules-schema.md) is the authoritative schema, including the severity values and common configuration errors.
 
 ## Verification
+
+Run the test suite and quality checks:
 
 ~~~bash
 cargo fmt --check
 cargo check --locked --all-targets
 cargo clippy --locked --all-targets -- -D warnings
 cargo test --locked
-cargo +1.85.0 check --locked --all-targets
 ~~~
 
-The current local run passes 15 library tests, no duplicate binary test suite, and the doctest target. The sample CLI invocation above is a real file-processing smoke test, not a benchmark.
+Unit tests sit next to the code they cover: pattern matching, frequency tracking and correlation in [`src/analyzer/`](src/analyzer/), rule deserialization in [`src/config/rules.rs`](src/config/rules.rs), and JSON output in [`src/output/`](src/output/).
 
 ## Scope and limitations
 
-- The normal path processes files in a streaming manner; no throughput or memory number is published without a controlled benchmark environment.
-- Follow mode is a local file watcher, not a distributed ingestion service.
-- Cross-platform behavior beyond the tested macOS environment and CI’s Linux environment requires separate validation.
-- The repository publishes no `cargo install` package; the source build, or the tagged release's source archive, is the supported installation path.
+- Streaming processing: Processes log lines sequentially; no throughput or memory benchmarks are claimed without a dedicated benchmark environment.
+- Single-host monitoring: Follow mode is a local file watcher using the `notify` crate, not a distributed log aggregation service.
+- Platform support: Verified on macOS (local development) and Linux (CI matrix). Windows is currently unverified.
+- Packaging: No package is published to crates.io; source builds from the repository are the supported installation path.
 
 ## Architecture
 
@@ -114,32 +130,25 @@ The current local run passes 15 library tests, no duplicate binary test suite, a
 - `src/watcher/` — file reading, offsets, and follow-mode notifications.
 - `src/output/` — detection types, console rendering, and JSON writing.
 
-[docs/architecture.md](docs/architecture.md) covers the module map, the data flow, the pattern-matching
-priority, and the rule that follow mode must reuse one `ScanState` rather than rebuilding the engines
-per read.
+[docs/architecture.md](docs/architecture.md) covers the module map, data flow, pattern-matching priority, and the requirement that follow mode reuse a single `ScanState` instance across reads.
 
 ## Contributing
 
-Build requirements, the exact checks CI runs, manual smoke commands, and the commit conventions are in
+Build requirements, CI check commands, manual smoke tests, and commit conventions are in
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Versioning and support
 
-RustHound follows `0.x` semantics: the version number is a statement about scope, not a compatibility
-promise. While the major version is 0, a breaking change to the CLI, the rules-file schema, or the
-JSON output shape bumps the minor version, and a compatible fix bumps the patch version. Every change
-is recorded in [CHANGELOG.md](CHANGELOG.md).
+RustHound follows `0.x` semantics: the version number represents project scope rather than API stability. Breaking changes bump the minor version, and backward-compatible fixes bump the patch version. Detailed release history is documented in [CHANGELOG.md](CHANGELOG.md).
 
 | Platform | Status |
 | --- | --- |
-| Linux | Verified by CI on Rust 1.85 (the minimum supported version) and stable. |
-| macOS | Verified locally against the committed source; not part of the CI matrix. |
-| Windows | Not verified. |
+| Linux | Verified by CI on Rust 1.85 (MSRV) and stable. |
+| macOS | Verified locally against committed source. |
+| Windows | Unverified. |
 
-The minimum supported Rust version is 1.85; raising it is a minor-version change. A `1.0` would mean
-the existing command surface, rules schema, and JSON output have stopped moving, not that every idea
-in the issue tracker has been implemented.
+The minimum supported Rust version is 1.85; raising it is a minor-version change.
 
-## License and attribution
+## License
 
-Licensed under Apache-2.0 to provide enterprise patent grants and permissive commercial integration for log-pipeline and observability tooling. See [LICENSE](LICENSE).
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
