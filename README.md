@@ -26,6 +26,10 @@ cargo run --locked -- \
 
 The sample run emits eight detections with severity and source-line context. See [the project guide](docs/project-guide.md) for other options, installation, and rule setup.
 
+![Console output of the sample run: eight CRITICAL and HIGH detections from sample.log](docs/images/sample-run.svg)
+
+The image is the unedited console output of the release binary on the bundled `sample.log` and `rules.toml`, wrapped at 110 columns.
+
 ## Architecture
 
 RustHound loads TOML rules and prepares its text and regular-expression matcher at startup. It reads each log line and checks it against those rules. Frequency and event-sequence rules keep state as lines are read, including across follow-mode updates. It filters detections by the requested minimum severity and writes them to the console, JSON, or both. See [the module map and data flow](docs/architecture.md) for implementation details.
