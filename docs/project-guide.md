@@ -4,7 +4,7 @@
 
 - Streaming line-by-line log analysis for single files or directories of `.log` files.
 - TOML-based rule matching for exact substrings and regular expressions.
-- Time-windowed frequency tracking to detect recurring errors exceeding defined thresholds.
+- Frequency tracking over a read-time window to detect bursts of recurring errors exceeding defined thresholds (windows are measured when lines are read, not on log timestamps; see [rules-schema.md](rules-schema.md#window-timing)).
 - Multi-event correlation rules to alert on sequence patterns (such as repeated authentication failures followed by a login).
 - Console, JSON array, and combined output modes, with minimum-severity filtering.
 - State-preserving follow mode (`--follow`) monitoring newly appended log lines.

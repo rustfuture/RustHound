@@ -9,7 +9,7 @@ RustHound reads log files and reports lines that match rules or unusual activity
 
 - Reads individual log files or directories of `.log` files.
 - Matches text and regular-expression rules from TOML configuration files.
-- Detects repeated errors and configured event sequences.
+- Detects bursts of repeated errors and configured event sequences as they are read (see [scope and limitations](#scope-and-limitations)).
 - Prints results to the console or writes them as JSON.
 - Follow mode tracks newly appended log lines while keeping analyzer state.
 
@@ -46,6 +46,7 @@ The tests cover rule matching, frequency tracking, event correlation, rule-file 
 ## Scope and limitations
 
 - Processes log lines sequentially; no throughput or memory benchmarks are claimed without a dedicated benchmark environment.
+- Frequency and correlation windows are measured on the time RustHound reads each line, not on timestamps inside the log. They describe bursts in live or follow mode; scanning an existing file counts lines that were logged hours apart as if they arrived within the same window.
 - Follow mode watches local files with the `notify` crate; it is not a distributed log aggregation service.
 - Verified on macOS (local development) and Linux (CI matrix); Windows is currently unverified.
 - No package is published to crates.io; source builds from the repository are the supported installation path.

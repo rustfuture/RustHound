@@ -16,16 +16,9 @@ All notable changes to this project are documented here.
 
 ### Added
 
-- `CONTRIBUTING.md`, `docs/architecture.md`, and `docs/rules-schema.md`. The module map, the
-  follow-mode state rule, the pattern-matching priority, the rules schema, and the manual smoke
-  commands previously lived in an agent-skill directory; they are now normal project documentation.
-
-### Removed
-
-- Editor configuration files and `scripts/git-commit-as-owner.sh`. The editor files were tooling
-  configuration rather than project content, and the commit wrapper only existed to force an author
-  identity that is now set in the global Git configuration. The rules schema and architecture notes
-  were preserved in the documents listed above.
+- `CONTRIBUTING.md`, `docs/architecture.md`, and `docs/rules-schema.md`, documenting the module map,
+  the follow-mode state rule, the pattern-matching priority, the rules schema, and the manual smoke
+  commands.
 
 ## [0.1.1] - 2026-09-14
 
@@ -42,9 +35,6 @@ All notable changes to this project are documented here.
   existing file and writes the bundled default beside it as `rules.toml.new`; uninstalling keeps the
   configuration unless the purge option is chosen.
 - A failed rules-file copy printed "Installation complete" and exited 0. It now fails.
-- The development-workflow skill required Rust 1.83 while the crate, README, and CI require 1.85.
-- An editor-configuration README claimed every file in its directory was project-authored. One file
-  was adapted from a community source; that provenance is now recorded in the file and in the index.
 
 ### Added
 
@@ -65,12 +55,6 @@ All notable changes to this project are documented here.
 - The generated default rules template and the remaining development documentation are now English.
 - The README now carries a CI badge and a support matrix that states which platforms are verified.
 - CHANGELOG.md was added and is linked from the README.
-
-### Removed
-
-- The vendored third-party agent-skill bundles under `docs/agent-skills/` and their installer. They
-  were development aids unrelated to the analyzer runtime and accounted for 230 of the repository's
-  tracked files.
 
 ### Fixed
 

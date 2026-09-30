@@ -57,10 +57,6 @@ cargo test --locked <module> -- --nocapture
 Installs the release binary to `~/.local/bin` and the bundled `rules.toml` into the platform
 configuration directory the binary resolves. Re-running it never overwrites rules you have edited.
 
-## Commit conventions
-
-Commits are authored by the repository owner. Do not add `Co-authored-by:` trailers.
-
 ## Scope
 
 The repository ships no `cargo install` package; the source build is the supported installation path.
