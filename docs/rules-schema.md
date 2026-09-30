@@ -31,6 +31,14 @@ name = "authentication_failure"    # must match a regex_rules.name
 count = 10
 ~~~
 
+## Window timing
+
+`time_window_seconds` in `[frequency_rules]` and in `[[correlated_rules]]` is measured on processing
+time: the moment RustHound reads a line (`Local::now` in `src/analyzer/frequency_tracker.rs`,
+`Instant::now` in `src/analyzer/correlation_engine.rs`). It is not derived from timestamps inside the
+log. The windows therefore describe bursts in live or follow mode. When scanning an existing file, lines
+logged hours apart are read within moments of each other and are counted as inside the same window.
+
 ## Common mistakes
 
 - `[patterns]` and `[[regex_rules.rule]]` are not valid. The `[rules]` table holds

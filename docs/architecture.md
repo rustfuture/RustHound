@@ -10,7 +10,7 @@ src/watcher/
   file_watcher.rs       notify-based file watch
 src/analyzer/
   pattern_matcher.rs    String + regex matching
-  frequency_tracker.rs  Time-window event counts
+  frequency_tracker.rs  Event counts per read-time window
   correlation_engine.rs Multi-event correlation rules
 src/output/
   mod.rs                Detection, Severity
@@ -37,6 +37,13 @@ fires on a full scan but never in follow mode.
 - For multi-file follow, keep one `ScanState` per file in a `file_states` map.
 
 Do not construct engines inside `read_file_from_offset`.
+
+## Window timing
+
+The frequency and correlation windows use the time a line is read, not the timestamp in the log line
+(`Local::now` in `frequency_tracker.rs`, `Instant::now` in `correlation_engine.rs`). They measure
+bursts in live or follow mode; on an existing file, lines logged far apart are counted as within one
+window. See [rules-schema.md](rules-schema.md#window-timing).
 
 ## Pattern matching priority
 
