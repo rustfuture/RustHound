@@ -1,5 +1,7 @@
 # RustHound
 
+![RustHound project overview](docs/images/social-preview.png)
+
 RustHound reads log files and reports lines that match rules or unusual activity.
 
 [![CI](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml/badge.svg)](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml)
