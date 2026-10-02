@@ -15,9 +15,12 @@ RustHound reads log files and reports lines that match rules or unusual activity
 
 ## Quick start
 
-Run RustHound on the included sample log with the included rules:
+You need Git and Rust 1.85+ with Cargo ([rustup](https://rustup.rs/)). The first build downloads Cargo dependencies. Clone the repository, then run the included sample log with the included rules; no external log service or rule authoring is needed:
 
 ~~~bash
+git clone https://github.com/rustfuture/RustHound.git
+cd RustHound
+
 cargo run --locked -- \
   --file sample.log \
   --rules rules.toml \
