@@ -7,7 +7,8 @@ RustHound reads log files and reports lines that match rules or unusual activity
 [![CI](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml/badge.svg)](https://github.com/rustfuture/RustHound/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
-**Status:** Maintained, experimental CLI; pre-1.0 portfolio project.
+> [!NOTE]
+> **Status:** Maintained, experimental CLI; pre-1.0 portfolio project.
 
 - Reads individual log files or directories of `.log` files.
 - Matches text and regular-expression rules from TOML configuration files.
