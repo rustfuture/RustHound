@@ -81,7 +81,7 @@ async fn main() -> anyhow::Result<()> {
     if let Some(file_path) = args.file {
         if args.follow {
             let (tx, mut rx) = tokio::sync::mpsc::channel(100);
-            watcher::file_watcher::watch_file(file_path.clone(), tx).await?;
+            let _watcher = watcher::file_watcher::watch_file(file_path.clone(), tx)?;
 
             let mut scan_state = watcher::log_reader::ScanState::new(
                 &rules.frequency_rules,
@@ -152,16 +152,12 @@ async fn main() -> anyhow::Result<()> {
             println!("Monitoring {} log files in real-time...", log_files.len());
             let (tx, mut rx) = tokio::sync::mpsc::channel(100);
 
+            let mut _watchers = Vec::new();
             for file_path in &log_files {
-                let tx_clone = tx.clone();
-                let file_path_clone = file_path.clone();
-                tokio::spawn(async move {
-                    if let Err(e) =
-                        watcher::file_watcher::watch_file(file_path_clone, tx_clone).await
-                    {
-                        eprintln!("Error watching file: {e}");
-                    }
-                });
+                match watcher::file_watcher::watch_file(file_path.clone(), tx.clone()) {
+                    Ok(file_watcher) => _watchers.push(file_watcher),
+                    Err(e) => eprintln!("Error watching file: {e}"),
+                }
             }
 
             let mut file_states: std::collections::HashMap<
