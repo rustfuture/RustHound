@@ -18,6 +18,24 @@ RustHound reads log files and reports lines that match rules or unusual activity
 
 ## Quick start
 
+### Try the released CLI (macOS or Linux)
+
+The prebuilt CLI does not require Rust. The installer downloads a release, checks its SHA-256 checksum, and installs to `~/.local/bin`:
+
+~~~bash
+curl -fsSL https://raw.githubusercontent.com/rustfuture/RustHound/main/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+rusthound --version
+# Fetch the sample log and rules, then scan
+curl -fsSLO https://raw.githubusercontent.com/rustfuture/RustHound/main/sample.log
+curl -fsSLO https://raw.githubusercontent.com/rustfuture/RustHound/main/rules.toml
+rusthound --file sample.log --rules rules.toml --output console
+~~~
+
+Prebuilt Linux binaries require glibc; unsupported platforms can build from source. On Windows, use the [PowerShell installer](install.ps1).
+
+### Build from source
+
 You need Git and Rust 1.85+ with Cargo ([rustup](https://rustup.rs/)). The first build downloads Cargo dependencies. Clone the repository, then run the included sample log with the included rules; no external log service or rule authoring is needed:
 
 ~~~bash
