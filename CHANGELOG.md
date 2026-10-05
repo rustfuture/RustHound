@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-05
+
+### Added
+
+- Prebuilt binaries for Linux (x86_64, aarch64), macOS (Intel, Apple Silicon) and Windows on each release, with SHA-256 files, plus `install.sh` and `install.ps1` installers.
+
 ## [0.1.2] - 2026-09-14
 
 ### Fixed

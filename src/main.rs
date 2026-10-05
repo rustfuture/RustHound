@@ -4,7 +4,7 @@ use rust_hound::{analyzer, config, output, watcher};
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[clap(name = "rusthound", author, version, about, long_about = None)]
 struct Args {
     /// Path to a single log file (default: sample.log)
     #[clap(long, short = 'f', value_parser)]
