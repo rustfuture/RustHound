@@ -50,6 +50,29 @@ cargo run --locked -- \
 
 The sample run emits eight detections with severity and source-line context. See [the project guide](docs/project-guide.md) for other options, installation, and rule setup.
 
+### Write your own rule
+
+Save this TOML as `my-rules.toml` and the log line below as `app.log`:
+
+<!-- own-rule-example -->
+~~~toml
+[rules]
+error_patterns = []
+warning_patterns = []
+
+[[regex_rules]]
+name = "failed_login"
+pattern = "Failed login"
+severity = "high"
+~~~
+
+<!-- own-rule-log -->
+~~~text
+Failed login for user alice
+~~~
+
+Run `rusthound --file app.log --rules my-rules.toml`; it prints a HIGH detection named `failed_login` for the matching line.
+
 ![Console output of the sample run: eight CRITICAL and HIGH detections from sample.log](docs/images/sample-run.svg)
 
 The image is the unedited console output of the release binary on the bundled `sample.log` and `rules.toml`, wrapped at 110 columns.
